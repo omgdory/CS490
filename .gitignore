@@ -1,0 +1,7 @@
+# ignore binary files
+*.suo
+*.user
+_ReSharper.*
+*/bin/*
+*/obj/*
+packages

@@ -1,4 +1,4 @@
-﻿namespace Lexer;
+﻿namespace x86toCPP;
 
 public enum TOKEN_TYPES {
   MOV = 0,
@@ -8,6 +8,13 @@ public enum TOKEN_TYPES {
   DIV = 4,
 }
 
+public class Token {
+
+}
+
 public class Lexer {
-  
+  // private List<Token> Tokens { get; }
+  public static void Test() {
+    Console.WriteLine("Hello world");
+  }
 }

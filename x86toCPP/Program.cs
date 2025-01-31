@@ -1,3 +1,9 @@
-﻿using x86toCPP;
+﻿using Lexer_x86;
 
-Lexer.Test();
+namespace x86toCPP;
+
+public class Program {
+  public static void Main(string[] args) {
+    Lexer.Test();
+  }
+}

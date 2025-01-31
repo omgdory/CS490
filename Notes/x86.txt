@@ -47,7 +47,7 @@ directive         ::= data_directive | segment_directive | other_directive ;
 
 data_directive    ::= identifier ("db" | "dw" | "dd" | "dq" | "ddq" | "dt" | "resb" | "resw" | "resd" | "resq") operand_list ;
 
-segment_directive ::= ".code" | ".data" | ".bss" | ".text" | ".stack" ;
+segment_directive ::= "section" (".code" | ".data" | ".bss" | ".text" | ".stack") ;
 
 other_directive   ::= "org" integer
                    | "equ" operand

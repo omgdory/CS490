@@ -33,6 +33,7 @@ public class Lexer {
     {"shr", TOKEN_TYPE.SHR},
     {"syscall", TOKEN_TYPE.SYSCALL},
     {"section", TOKEN_TYPE.SECTION},
+    {"equ", TOKEN_TYPE.EQU},
     {"db", TOKEN_TYPE.DB},
     {"dw", TOKEN_TYPE.DW},
     {"dd", TOKEN_TYPE.DD},
@@ -66,13 +67,12 @@ public class Lexer {
         // one character at a time until can't read
         while ((character = reader.Read()) != -1) {
           char currChar = (char)character;
-          // if CR, read in the following LF (if possible)
-          if(currChar == '\r') {
-            character = reader.Read();
-            if((char)character != '\n')
-              throw new Exception("CR not followed by LF.");
-            continue;
-          }
+          // if(currChar=='\r') {
+          //   character = reader.Read();
+          //   if((char)character != '\n') {
+          //     throw new Exception("CR not followed by LF");
+          //   }
+          // }
           HandleChar(currChar, ref inComment, ref currentValue, ref res);
         }
       }
@@ -84,55 +84,68 @@ public class Lexer {
   }
   private static void HandleChar(char currChar, ref bool inComment, ref string currentValue, ref List<Token> result) {
     // if in comment mode, then just append to currentValue (comment contents)
-    if(inComment && currChar != '\n') {
+    if(inComment) {
+      if(currChar == '\r') {
+        result.Add(new Token((int)TOKEN_TYPE.COMMENT, (int)CHANNEL_TYPE.COMMENT, currentValue));
+        currentValue = "";
+        inComment = false;
+        return;
+      }
       currentValue += currChar;
       return;
     }
     // semicolon -> enter comment
     if(currChar == ';') {
       inComment = true;
+      // handle previous token if necessary
+      if(currentValue.Length > 0) {
+        // handle token type
+        TOKEN_TYPE tokenType = stringToTypeDict.ContainsKey(currentValue) ?
+          stringToTypeDict[currentValue]
+          : TOKEN_TYPE.IDENTIFIER;
+        // guaranteed not to be in comment, because it would have been caught earlier
+        result.Add(new Token((int)tokenType, (int)CHANNEL_TYPE.DEFAULT, currentValue));
+      }
       return;
     }
-    // whitespace -> handle current token, then add a newline token if necessary
-    if(currChar == ' ' || currChar == '\t' || currChar == '\n') {
+    // whitespace or comma -> handle current token, then add a newline token if necessary
+    if(currChar == ' ' || currChar == '\r' || currChar == '\t' || currChar == '\n' || currChar == ',') {
+      if(currentValue.Length == 0) return;
+      // Console.WriteLine("Token found");
       // handle token type
       TOKEN_TYPE tokenType = stringToTypeDict.ContainsKey(currentValue) ?
         stringToTypeDict[currentValue]
         : TOKEN_TYPE.IDENTIFIER;
-      if(inComment) {
-        tokenType = TOKEN_TYPE.COMMENT;
-        inComment = false;
-      }
-      // handle channel type
-      CHANNEL_TYPE channelType = tokenType==TOKEN_TYPE.COMMENT ?
-        CHANNEL_TYPE.COMMENT
-        : CHANNEL_TYPE.DEFAULT;
-      result.Add(new Token((int)tokenType, (int)channelType, currentValue));
-      if(currChar=='\n')
-        result.Add(new Token((int)TOKEN_TYPE.NEWLINE, (int)CHANNEL_TYPE.WHITESPACE, currChar.ToString()));
+      result.Add(new Token((int)tokenType, (int)CHANNEL_TYPE.DEFAULT, currentValue));
+      currentValue = "";
+      // if(currChar=='\n')
+      //   result.Add(new Token((int)TOKEN_TYPE.NEWLINE, (int)CHANNEL_TYPE.WHITESPACE, currChar.ToString()));
+      if (currChar==',')
+        result.Add(new Token((int)TOKEN_TYPE.COMMA, (int)CHANNEL_TYPE.DEFAULT, currChar.ToString()));
       return;
     }
     // anything else
+    Console.WriteLine("Current char: " + currChar);
     currentValue += currChar;
   }
 
-  private static void PrintToken(Token token) {
+  public static void PrintToken(Token token) {
     // special channels
     if((CHANNEL_TYPE)token.ChannelType==CHANNEL_TYPE.WHITESPACE) {
       return;
     } else if((CHANNEL_TYPE)token.ChannelType==CHANNEL_TYPE.COMMENT) {
-      Console.Write("Token Type: " + (TOKEN_TYPE)token.TokenType);
-      Console.WriteLine(", comment, value: \"" + token.Value + "\"");
+      Console.Write("Token Type: " + token.TokenType);
+      Console.WriteLine(", comment, value: \"" + token.Value + '\"');
       return;
     }
     // default channel
     Console.Write("Token Type: " + token.TokenType);
     switch(token.TokenType) {
       case (int)TOKEN_TYPE.IDENTIFIER:
-        Console.WriteLine(", identifier, value: \"" + token.Value + "\"");
+        Console.WriteLine(", identifier, value: \"" + token.Value + '\"');
         break;
       default:
-        Console.WriteLine(", keyword, value: \"" + token.Value + "\"");
+        Console.WriteLine(", keyword, value: \"" + token.Value + '\"');
         break;
     }
   }

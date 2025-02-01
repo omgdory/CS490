@@ -6,6 +6,7 @@ public enum TOKEN_TYPE {
   IDENTIFIER,
   WHITESPACE,
   NEWLINE,
+  COMMA,
   ADD,
   SUB,
   MUL,

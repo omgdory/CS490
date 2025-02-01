@@ -11,7 +11,7 @@ public class Program {
     }
     List<Token> tokens = Lexer.LexTokens(args[0]);
     foreach(Token t in tokens) {
-      Lexer.PrintToken(t);
+      Console.WriteLine(t.ToString());
     }
   }
 }

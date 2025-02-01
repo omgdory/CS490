@@ -49,6 +49,7 @@ public class Lexer {
     {".bss", TOKEN_TYPE.BSS_SEGMENT_IDENTIFIER},
     {".text", TOKEN_TYPE.TEXT_SEGMENT_IDENTIFIER},
     {".stack", TOKEN_TYPE.STACK_SEGMENT_IDENTIFIER},
+    {"global", TOKEN_TYPE.GLOBAL},
   };
 
   /// <summary>
@@ -125,7 +126,7 @@ public class Lexer {
       return;
     }
     // anything else
-    Console.WriteLine("Current char: " + currChar);
+    // Console.WriteLine("Current char: " + currChar);
     currentValue += currChar;
   }
 

@@ -11,12 +11,12 @@ section .text
 
 global _start
 _start:
-  shl ax, 8
+  shl ax, 0x08
   shl eax, cl
   shl rcx, 32
   shl qword[test], cl
 
-  shr ax, 8
+  shr ax, 0x0008
   shr eax, cl
   shr rcx, 32
   shr qword[test], cl

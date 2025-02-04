@@ -1,6 +1,6 @@
 namespace Lexer_x86;
 
-public enum REGISTER_TYPE {
+public enum REGISTER_TOKEN {
   AL,BL,CL,DL,SIL,DIL,BPL,SPL,
   AH,BH,CH,DH,
   R8B,R9B,R10B,R11B,R12B,R13B,R14B,R15B,

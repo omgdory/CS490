@@ -7,21 +7,6 @@ public class Lexer {
   private static Dictionary<string, TOKEN_TYPE> stringToTypeDict = new Dictionary<string, TOKEN_TYPE>() {
     {"section", TOKEN_TYPE.SECTION},
     {"equ", TOKEN_TYPE.EQU},
-    {"db", TOKEN_TYPE.DB},
-    {"dw", TOKEN_TYPE.DW},
-    {"dd", TOKEN_TYPE.DD},
-    {"dq", TOKEN_TYPE.DQ},
-    {"ddq", TOKEN_TYPE.DDQ},
-    {"dt", TOKEN_TYPE.DT},
-    {"resb", TOKEN_TYPE.RESB},
-    {"resw", TOKEN_TYPE.RESW},
-    {"resd", TOKEN_TYPE.RESD},
-    {"resq", TOKEN_TYPE.RESQ},
-    {".code", TOKEN_TYPE.CODE_SEGMENT_IDENTIFIER},
-    {".data", TOKEN_TYPE.DATA_SEGMENT_IDENTIFIER},
-    {".bss", TOKEN_TYPE.BSS_SEGMENT_IDENTIFIER},
-    {".text", TOKEN_TYPE.TEXT_SEGMENT_IDENTIFIER},
-    {".stack", TOKEN_TYPE.STACK_SEGMENT_IDENTIFIER},
     {"global", TOKEN_TYPE.GLOBAL},
   };
 
@@ -120,6 +105,14 @@ public class Lexer {
     // then, check if it is a mnemonic
     else if(MnemonicToken.StringToType.ContainsKey(value)) {
       return new MnemonicToken(value, lineTracker);
+    }
+    // then, check if it's a data directive
+    else if(DataDirectiveToken.StringToType.ContainsKey(value)) {
+      return new DataDirectiveToken(value, lineTracker);
+    }
+    // then, check if it's a segment identifier
+    else if(SegmentIdentifierToken.StringToType.ContainsKey(value)) {
+      return new SegmentIdentifierToken(value, lineTracker);
     }
     // any other keyword
     else if(stringToTypeDict.ContainsKey(value)) {

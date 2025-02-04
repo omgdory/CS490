@@ -1,6 +1,6 @@
 namespace Lexer_x86;
 
-public enum MNEMONIC_TYPE {
+public enum MNEMONIC_TOKEN {
   MOV,
   ADD,
   SUB,

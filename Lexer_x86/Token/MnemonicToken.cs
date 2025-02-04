@@ -1,40 +1,40 @@
 namespace Lexer_x86;
 
 public class MnemonicToken : Token {
-  private static Dictionary<string, MNEMONIC_TYPE> _stringToType = new Dictionary<string, MNEMONIC_TYPE>() {
-    {"mov", MNEMONIC_TYPE.MOV},
-    {"add", MNEMONIC_TYPE.ADD},
-    {"sub", MNEMONIC_TYPE.SUB},
-    {"mul", MNEMONIC_TYPE.MUL},
-    {"div", MNEMONIC_TYPE.DIV},
-    {"cmp", MNEMONIC_TYPE.CMP},
-    {"jmp", MNEMONIC_TYPE.JMP},
-    {"je", MNEMONIC_TYPE.JE},
-    {"jne", MNEMONIC_TYPE.JNE},
-    {"jl", MNEMONIC_TYPE.JL},
-    {"jle", MNEMONIC_TYPE.JLE},
-    {"jg", MNEMONIC_TYPE.JG},
-    {"jge", MNEMONIC_TYPE.JGE},
-    {"jb", MNEMONIC_TYPE.JB},
-    {"jbe", MNEMONIC_TYPE.JBE},
-    {"ja", MNEMONIC_TYPE.JA},
-    {"jae", MNEMONIC_TYPE.JAE},
-    {"call", MNEMONIC_TYPE.CALL},
-    {"ret", MNEMONIC_TYPE.RET},
-    {"push", MNEMONIC_TYPE.PUSH},
-    {"pop", MNEMONIC_TYPE.POP},
-    {"and", MNEMONIC_TYPE.AND},
-    {"or", MNEMONIC_TYPE.OR},
-    {"xor", MNEMONIC_TYPE.XOR},
-    {"nop", MNEMONIC_TYPE.NOP},
-    {"inc", MNEMONIC_TYPE.INC},
-    {"dec", MNEMONIC_TYPE.DEC},
-    {"shl", MNEMONIC_TYPE.SHL},
-    {"shr", MNEMONIC_TYPE.SHR},
-    {"syscall", MNEMONIC_TYPE.SYSCALL},
+  private static Dictionary<string, MNEMONIC_TOKEN> _stringToType = new Dictionary<string, MNEMONIC_TOKEN>() {
+    {"mov", MNEMONIC_TOKEN.MOV},
+    {"add", MNEMONIC_TOKEN.ADD},
+    {"sub", MNEMONIC_TOKEN.SUB},
+    {"mul", MNEMONIC_TOKEN.MUL},
+    {"div", MNEMONIC_TOKEN.DIV},
+    {"cmp", MNEMONIC_TOKEN.CMP},
+    {"jmp", MNEMONIC_TOKEN.JMP},
+    {"je", MNEMONIC_TOKEN.JE},
+    {"jne", MNEMONIC_TOKEN.JNE},
+    {"jl", MNEMONIC_TOKEN.JL},
+    {"jle", MNEMONIC_TOKEN.JLE},
+    {"jg", MNEMONIC_TOKEN.JG},
+    {"jge", MNEMONIC_TOKEN.JGE},
+    {"jb", MNEMONIC_TOKEN.JB},
+    {"jbe", MNEMONIC_TOKEN.JBE},
+    {"ja", MNEMONIC_TOKEN.JA},
+    {"jae", MNEMONIC_TOKEN.JAE},
+    {"call", MNEMONIC_TOKEN.CALL},
+    {"ret", MNEMONIC_TOKEN.RET},
+    {"push", MNEMONIC_TOKEN.PUSH},
+    {"pop", MNEMONIC_TOKEN.POP},
+    {"and", MNEMONIC_TOKEN.AND},
+    {"or", MNEMONIC_TOKEN.OR},
+    {"xor", MNEMONIC_TOKEN.XOR},
+    {"nop", MNEMONIC_TOKEN.NOP},
+    {"inc", MNEMONIC_TOKEN.INC},
+    {"dec", MNEMONIC_TOKEN.DEC},
+    {"shl", MNEMONIC_TOKEN.SHL},
+    {"shr", MNEMONIC_TOKEN.SHR},
+    {"syscall", MNEMONIC_TOKEN.SYSCALL},
   };
-  public static Dictionary<string, MNEMONIC_TYPE> StringToType { get; }
-  public MNEMONIC_TYPE MnemonicType { get; }
+  public static Dictionary<string, MNEMONIC_TOKEN> StringToType { get; }
+  public MNEMONIC_TOKEN MnemonicType { get; }
   
   static MnemonicToken() {
     StringToType = _stringToType;
@@ -49,6 +49,6 @@ public class MnemonicToken : Token {
   }
   
   public override string ToString() {
-    return "(" + Line + ") Value: \"" + Value + "\"\tMnemonic: " + Enum.GetName(typeof(MNEMONIC_TYPE), MnemonicType);
+    return "(" + Line + ") Value: \"" + Value + "\"\tMnemonic: " + Enum.GetName(typeof(MNEMONIC_TOKEN), MnemonicType);
   }
 }

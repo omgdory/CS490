@@ -31,7 +31,8 @@ public class Lexer {
           if(currChar=='\n') lineTracker++;
         }
         // deal with leftover currentValue if necessary
-        if(!String.IsNullOrWhiteSpace(currentValue)) res.Add(CreateTokenFromString(currentValue, lineTracker));
+        if(inComment) res.Add(new Token((int)TOKEN_TYPE.COMMENT, (int)CHANNEL_TYPE.COMMENT, currentValue, lineTracker));
+        else if(!String.IsNullOrWhiteSpace(currentValue)) res.Add(CreateTokenFromString(currentValue, lineTracker));
       }
     }
     catch (Exception ex) {

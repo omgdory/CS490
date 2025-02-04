@@ -17,7 +17,7 @@ public class SegmentIdentifierToken : Token {
   }
 
   public SegmentIdentifierToken(string value, int line)
-  : base((int)TOKEN_TYPE.DATA_DIRECTIVE, (int)CHANNEL_TYPE.DEFAULT, value, line) {
+  : base((int)TOKEN_TYPE.SEGMENT_IDENTIFIER, (int)CHANNEL_TYPE.DEFAULT, value, line) {
     if(!StringToType.ContainsKey(value)) {
       throw new Exception("Invalid segment identifier string");
     }

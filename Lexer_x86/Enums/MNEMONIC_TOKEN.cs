@@ -31,4 +31,6 @@ public enum MNEMONIC_TOKEN {
   SHL,
   SHR,
   SYSCALL,
+  MACRO_START,
+  MACRO_END,
 }

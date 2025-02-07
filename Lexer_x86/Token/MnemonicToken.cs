@@ -32,6 +32,8 @@ public class MnemonicToken : Token {
     {"shl", MNEMONIC_TOKEN.SHL},
     {"shr", MNEMONIC_TOKEN.SHR},
     {"syscall", MNEMONIC_TOKEN.SYSCALL},
+    {"%macro", MNEMONIC_TOKEN.MACRO_START},
+    {"%endmacro", MNEMONIC_TOKEN.MACRO_END},
   };
   public static Dictionary<string, MNEMONIC_TOKEN> StringToType { get; }
   public MNEMONIC_TOKEN MnemonicType { get; }

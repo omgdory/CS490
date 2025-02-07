@@ -10,6 +10,8 @@ public class Lexer {
     {"global", TOKEN_TYPE.GLOBAL},
   };
 
+  private const string NEWLINE_LITERAL = "\\n"; // ASCII representation of \n
+
   /// <summary>
   /// Get tokens in a given assembly file
   /// </summary>
@@ -40,13 +42,16 @@ public class Lexer {
     }
     return res;
   }
-  private static void HandleChar(char currChar, ref bool inComment, ref string currentValue, ref List<Token> result, int lineTracker) {
+  private static void HandleChar(char currChar, ref bool inComment,
+  ref string currentValue, ref List<Token> result, int lineTracker) {
     // if in comment mode, then just append to currentValue (comment contents)
     if(inComment) {
       if(currChar == '\r' || currChar == '\n') {
         result.Add(new Token((int)TOKEN_TYPE.COMMENT, (int)CHANNEL_TYPE.COMMENT, currentValue, lineTracker));
         currentValue = "";
         inComment = false;
+        if(currChar == '\r' || currChar == '\n')
+          result.Add(new Token((int)TOKEN_TYPE.NEWLINE, (int)CHANNEL_TYPE.DEFAULT, NEWLINE_LITERAL, lineTracker));
         return;
       }
       currentValue += currChar;
@@ -61,6 +66,11 @@ public class Lexer {
         // guaranteed not to be in comment, because it would have been caught earlier
         if(!String.IsNullOrWhiteSpace(currentValue)) result.Add(CreateTokenFromString(currentValue, lineTracker));
       }
+      return;
+    }
+    // percent -> macro
+    if(currChar == '%') {
+      currentValue += currChar;
       return;
     }
     // comma -> operand separator
@@ -85,10 +95,11 @@ public class Lexer {
       // ignore whitespace
       if(!String.IsNullOrWhiteSpace(currentValue)) result.Add(CreateTokenFromString(currentValue, lineTracker));
       currentValue = "";
+      if(currChar == '\r' || currChar == '\n')
+        result.Add(new Token((int)TOKEN_TYPE.NEWLINE, (int)CHANNEL_TYPE.DEFAULT, NEWLINE_LITERAL, lineTracker));
       return;
     }
     // anything else
-    // Console.WriteLine("Current char: " + currChar);
     currentValue += currChar;
   }
 
@@ -129,6 +140,35 @@ public class Lexer {
     }
     // any more than one char
     else if(value.Length > 1) {
+      // check macro
+      if(value[0]=='%') {
+        if(Char.IsDigit(value[1])) {
+          // make sure it is digits
+          bool validArg = true;
+          for(int i=1; i<value.Length; i++) {
+            if(!Char.IsDigit(value[i])) {
+              validArg = false;
+              break;
+            }
+          }
+          if(!validArg)
+            return new Token((int)TOKEN_TYPE.ERROR, (int)CHANNEL_TYPE.DEFAULT, value, lineTracker);
+          // now valid
+          return new Token((int)TOKEN_TYPE.MACRO_ARGUMENT, (int)CHANNEL_TYPE.DEFAULT, value, lineTracker);
+        }
+        else if(value[1]=='%') {
+          // just two percent signs...
+          if(value.Length <= 2)
+            return new Token((int)TOKEN_TYPE.ERROR, (int)CHANNEL_TYPE.DEFAULT, value, lineTracker);
+          for(int i=2; i<value.Length; i++) {
+            if(!Char.IsAsciiLetter(value[0]) && !Char.IsDigit(value[0]) && value[0] != '_'
+            || value[value.Length-1] != ':') {
+              return new Token((int)TOKEN_TYPE.ERROR, (int)CHANNEL_TYPE.DEFAULT, value, lineTracker);
+            }
+          }
+          return new Token((int)TOKEN_TYPE.MACRO_LABEL, (int)CHANNEL_TYPE.DEFAULT, value, lineTracker);
+        }
+      }
       // check hex
       if(value[0] == '0' && value[1]=='x') {
         // if not a power of 2 plus 2, error

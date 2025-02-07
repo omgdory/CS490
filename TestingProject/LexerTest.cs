@@ -4,7 +4,8 @@ namespace TestingProject;
 public class LexerTest {
     [Fact]
     public void GenerateLexerCoverage() {
-      string testFilesDirectoryPath = @"C:\Users\doria\UNLV\Semester 8\CS490\TestFiles";
+      // CS490\TestingProject\bin\Debug\net8.0\TestFiles
+      string testFilesDirectoryPath = @"..\..\..\..\TestFiles";
       string testFilesExtension = "*.asm";
       IEnumerable<string> files = Directory.EnumerateFiles(testFilesDirectoryPath, testFilesExtension);
       foreach(string file in files) {

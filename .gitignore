@@ -6,3 +6,7 @@ bin/
 obj/
 net8.0/
 packages
+
+# ignore testing files (directories)
+coveragereport/
+TestResults/

@@ -1,11 +1,7 @@
-%macro	int2aSept	2
+%macro	testMacro	2
 	mov rbx, %2
 	mov rcx, STR_LENGTH
 	dec rcx
-	mov rdx, 0
-	mov r11, 0
-	mov r12, 0
-	mov r12d, 7 
 	mov r13, 0 
 	mov byte[rbx + rcx], NULL
 	dec rcx
@@ -19,6 +15,7 @@
 	idiv r12d 
 	add edx, 48 
 	mov byte[rbx + rcx], dl 
+  mov byte[rbx+rcx], dl   ; duplicated for testing...
 	mov edx, 0
 	dec rcx
 	cmp eax, 0 
@@ -37,6 +34,18 @@
 	dec rcx
 	cmp rcx, r11
 	jge %%addWhitespacesInt2Sept
-
-
 %endmacro
+
+section .data
+SYS_exit      equ 60
+EXIT_SUCCESS  equ 0
+NULL          equ 0
+
+section .text
+global _start
+_start:
+  mov rax, 2
+  testMacro dword[array+rsi*4], tempString
+  mov rax, SYS_exit
+  mov rdi, EXIT_SUCCESS
+  syscall

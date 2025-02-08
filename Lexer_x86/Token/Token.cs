@@ -20,6 +20,9 @@ public class Token {
   }
 
   public override string ToString() {
-    return "(" + Line + ") Value: \"" + Value + "\"\tToken Type: " + Enum.GetName(typeof(TOKEN_TYPE),TokenType);
+    string lineIndicator = "(" + Line + ")";
+    string valueIndicator = "\"" + Value + "\"";
+    string tokenTypeIndicator = "" + Enum.GetName(typeof(TOKEN_TYPE),TokenType);
+    return string.Format("{0,6} {1,32} {2,32}", lineIndicator, valueIndicator, tokenTypeIndicator);
   }
 }

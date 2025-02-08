@@ -8,7 +8,16 @@ public class Lexer {
     {"section", TOKEN_TYPE.SECTION},
     {"equ", TOKEN_TYPE.EQU},
     {"global", TOKEN_TYPE.GLOBAL},
+    {"byte", TOKEN_TYPE.BYTE},
+    {"word", TOKEN_TYPE.WORD},
+    {"dword", TOKEN_TYPE.DWORD},
+    {"qword", TOKEN_TYPE.QWORD},
   };
+
+  private static List<char> special_chars = new List<char>
+    {'!','@','#','$','%','^','&','*','(',')'
+    ,',','-','+','=','{','}','[',']',';'
+    ,':','\'','.','/','?','\\','|'};
 
   private const string NEWLINE_LITERAL = "\\n"; // ASCII representation of \n
 
@@ -78,15 +87,35 @@ public class Lexer {
       if(currentValue.Length == 0) return;
       if(!String.IsNullOrWhiteSpace(currentValue)) result.Add(CreateTokenFromString(currentValue, lineTracker));
       currentValue = "";
-      result.Add(new Token((int)TOKEN_TYPE.SPECIAL_CHAR, (int)CHANNEL_TYPE.DEFAULT, currChar.ToString(), lineTracker));
+      result.Add(new Token((int)TOKEN_TYPE.COMMA, (int)CHANNEL_TYPE.DEFAULT, currChar.ToString(), lineTracker));
       return;
     }
     // colon
     if(currChar == ':') {
-      if(currentValue.Length == 0) return;
+      Token currentFoundToken = CreateTokenFromString(currentValue, lineTracker);
+      TOKEN_TYPE foundType = TOKEN_TYPE.ERROR;
+      switch(currentFoundToken.TokenType) {
+        case (int)TOKEN_TYPE.IDENTIFIER:
+          foundType = TOKEN_TYPE.LABEL;
+          break;
+        case (int)TOKEN_TYPE.MACRO_LABEL:
+          foundType = TOKEN_TYPE.MACRO_LABEL;
+          break;
+        default:
+          break;
+      }
+      result.Add(new Token((int)foundType, (int)CHANNEL_TYPE.DEFAULT, currentValue+currChar.ToString(), lineTracker));
+      currentValue = "";
+      return;
+    }
+    // any other special char not previously handled -> deal
+    if(special_chars.Contains(currChar)) {
       if(!String.IsNullOrWhiteSpace(currentValue)) result.Add(CreateTokenFromString(currentValue, lineTracker));
       currentValue = "";
-      result.Add(new Token((int)TOKEN_TYPE.SPECIAL_CHAR, (int)CHANNEL_TYPE.DEFAULT, currChar.ToString(), lineTracker));
+      TOKEN_TYPE tokenType = TOKEN_TYPE.SPECIAL_CHAR;
+      if(currChar == '[') tokenType = TOKEN_TYPE.OPEN_BRACK;
+      else if(currChar == ']') tokenType = TOKEN_TYPE.CLOSE_BRACK;
+      result.Add(new Token((int)tokenType, (int)CHANNEL_TYPE.DEFAULT, currChar.ToString(), lineTracker));
       return;
     }
     // whitespace -> handle current token, then add a newline token if necessary
@@ -104,10 +133,6 @@ public class Lexer {
   }
 
   private static Token CreateTokenFromString(string value, int lineTracker) {
-    List<char> special_chars = new List<char>
-      {'!','@','#','$','%','^','&','*','(',')'
-      ,',','-','+','=','{','}','[',']',';'
-      ,':','\'','.','/','?','\\','|'};
     // if just whitespace, then add to whitespace channel
     if(String.IsNullOrWhiteSpace(value)) return new Token((int)TOKEN_TYPE.WHITESPACE, (int)CHANNEL_TYPE.WHITESPACE, value, lineTracker);
     // first, check if it is a register
@@ -127,8 +152,8 @@ public class Lexer {
       return new SegmentIdentifierToken(value, lineTracker);
     }
     // any other keyword
-    else if(stringToTypeDict.ContainsKey(value)) {
-      return new Token((int)stringToTypeDict[value], (int)CHANNEL_TYPE.DEFAULT, value, lineTracker);
+    else if(stringToTypeDict.ContainsKey(value.ToLower())) {
+      return new Token((int)stringToTypeDict[value.ToLower()], (int)CHANNEL_TYPE.DEFAULT, value, lineTracker);
     }
     // special: single character
     else if(value.Length == 1) {
@@ -156,13 +181,16 @@ public class Lexer {
           // now valid
           return new Token((int)TOKEN_TYPE.MACRO_ARGUMENT, (int)CHANNEL_TYPE.DEFAULT, value, lineTracker);
         }
+        // label
         else if(value[1]=='%') {
           // just two percent signs...
-          if(value.Length <= 2)
+          if(value.Length <= 2) {
+            Console.WriteLine("(" + lineTracker + ") Error: two percent signs");
             return new Token((int)TOKEN_TYPE.ERROR, (int)CHANNEL_TYPE.DEFAULT, value, lineTracker);
+          }
           for(int i=2; i<value.Length; i++) {
-            if(!Char.IsAsciiLetter(value[0]) && !Char.IsDigit(value[0]) && value[0] != '_'
-            || value[value.Length-1] != ':') {
+            if(!Char.IsAsciiLetter(value[i]) && !Char.IsDigit(value[i]) && value[i] != '_') {
+              Console.WriteLine("(" + lineTracker + ") Error: invalid label");
               return new Token((int)TOKEN_TYPE.ERROR, (int)CHANNEL_TYPE.DEFAULT, value, lineTracker);
             }
           }

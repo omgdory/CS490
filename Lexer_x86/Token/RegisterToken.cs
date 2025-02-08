@@ -91,6 +91,9 @@ public class RegisterToken : Token {
   }
   
   public override string ToString() {
-    return "(" + Line + ") Value: \"" + Value + "\"\tRegister: " + Enum.GetName(typeof(REGISTER_TOKEN), RegisterType);
+    string lineIndicator = "(" + Line + ")";
+    string valueIndicator = "\"" + Value + "\"";
+    string tokenTypeIndicator = "Register: " + Enum.GetName(typeof(REGISTER_TOKEN), RegisterType);
+    return string.Format("{0,6} {1,32} {2,32}", lineIndicator, valueIndicator, tokenTypeIndicator);
   }
 }

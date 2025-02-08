@@ -51,6 +51,9 @@ public class MnemonicToken : Token {
   }
   
   public override string ToString() {
-    return "(" + Line + ") Value: \"" + Value + "\"\tMnemonic: " + Enum.GetName(typeof(MNEMONIC_TOKEN), MnemonicType);
+    string lineIndicator = "(" + Line + ")";
+    string valueIndicator = "\"" + Value + "\"";
+    string tokenTypeIndicator = "Mnemonic: " + Enum.GetName(typeof(MNEMONIC_TOKEN), MnemonicType);
+    return string.Format("{0,6} {1,32} {2,32}", lineIndicator, valueIndicator, tokenTypeIndicator);
   }
 }

@@ -1,0 +1,6 @@
+byte[rsi]
+word[rdi]
+ByTe[rdi]
+BYTE[rsi]
+WORD[ax]
+woRD[ah]

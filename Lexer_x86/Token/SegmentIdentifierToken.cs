@@ -10,7 +10,7 @@ public class SegmentIdentifierToken : Token {
   };
 
   public static Dictionary<string, SEGMENT_IDENTIFIER_TOKEN> StringToType { get; }
-  public SEGMENT_IDENTIFIER_TOKEN DirectiveType { get; }
+  public SEGMENT_IDENTIFIER_TOKEN IdentifierType { get; }
 
   static SegmentIdentifierToken() {
     StringToType = _stringToType;
@@ -21,10 +21,13 @@ public class SegmentIdentifierToken : Token {
     if(!StringToType.ContainsKey(value)) {
       throw new Exception("Invalid segment identifier string");
     }
-    DirectiveType = StringToType[value];
+    IdentifierType = StringToType[value];
   }
   
   public override string ToString() {
-    return "(" + Line + ") Value: \"" + Value + "\"\tSegment Identifier: " + Enum.GetName(typeof(SEGMENT_IDENTIFIER_TOKEN), DirectiveType);
+    string lineIndicator = "(" + Line + ")";
+    string valueIndicator = "\"" + Value + "\"";
+    string tokenTypeIndicator = "SegIdent: " + Enum.GetName(typeof(SEGMENT_IDENTIFIER_TOKEN), IdentifierType);
+    return string.Format("{0,6} {1,32} {2,32}", lineIndicator, valueIndicator, tokenTypeIndicator);
   }
 }

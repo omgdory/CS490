@@ -30,6 +30,9 @@ public class DataDirectiveToken : Token {
   }
   
   public override string ToString() {
-    return "(" + Line + ") Value: \"" + Value + "\"\tData Directive: " + Enum.GetName(typeof(DATA_DIRECTIVE_TOKEN), DirectiveType);
+    string lineIndicator = "(" + Line + ")";
+    string valueIndicator = "\"" + Value + "\"";
+    string tokenTypeIndicator = "DataDirective: " + Enum.GetName(typeof(DATA_DIRECTIVE_TOKEN),DirectiveType);
+    return string.Format("{0,6} {1,32} {2,32}", lineIndicator, valueIndicator, tokenTypeIndicator);
   }
 }

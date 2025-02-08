@@ -6,4 +6,10 @@
 
 2hello
 
+properLabel:
+properLabelHelloo22:
+1thisisanerror:
+
+@hioerror :
+
 ; this is a comment

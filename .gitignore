@@ -1,0 +1,12 @@
+# ignore binary files
+*.suo
+*.user
+_ReSharper.*
+bin/
+obj/
+net8.0/
+packages
+
+# ignore testing files (directories)
+coveragereport/
+TestResults/

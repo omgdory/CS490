@@ -17,5 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lexer_x86\Lexer_x86.csproj" />
+    <ProjectReference Include="..\Token_x86\Token_x86.csproj" />
   </ItemGroup>
 </Project>

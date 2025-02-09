@@ -1,4 +1,5 @@
 using Lexer_x86;
+using Token_x86;
 namespace TestingProject;
 
 public class LexerTest {
@@ -10,6 +11,7 @@ public class LexerTest {
       IEnumerable<string> files = Directory.EnumerateFiles(testFilesDirectoryPath, testFilesExtension);
       foreach(string file in files) {
         List<Token> tmp = Lexer.LexTokens(file);
+        foreach(Token token in tmp) token.ToString();
       }
       // get the HTML file with "reportgenerator" on the XML report to view the results
     }

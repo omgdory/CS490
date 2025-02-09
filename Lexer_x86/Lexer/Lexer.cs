@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Token_x86;
 
 namespace Lexer_x86;
 
@@ -109,7 +110,8 @@ public class Lexer {
       return;
     }
     // any other special char not previously handled -> deal
-    if(special_chars.Contains(currChar)) {
+    // ignore dot for segment identifiers
+    if(special_chars.Contains(currChar) && currChar != '.') {
       if(!String.IsNullOrWhiteSpace(currentValue)) result.Add(CreateTokenFromString(currentValue, lineTracker));
       currentValue = "";
       TOKEN_TYPE tokenType = TOKEN_TYPE.SPECIAL_CHAR;

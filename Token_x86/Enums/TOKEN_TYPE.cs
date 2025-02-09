@@ -1,4 +1,4 @@
-namespace Lexer_x86;
+namespace Token_x86;
 
 public enum TOKEN_TYPE {
   DEFAULT,

@@ -1,4 +1,4 @@
-namespace Lexer_x86;
+namespace Token_x86;
 
 public class MnemonicToken : Token {
   private static Dictionary<string, MNEMONIC_TOKEN> _stringToType = new Dictionary<string, MNEMONIC_TOKEN>() {

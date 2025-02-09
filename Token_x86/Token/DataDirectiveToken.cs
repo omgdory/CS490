@@ -1,4 +1,4 @@
-namespace Lexer_x86;
+namespace Token_x86;
 
 public class DataDirectiveToken : Token {
   private static Dictionary<string, DATA_DIRECTIVE_TOKEN> _stringToType = new Dictionary<string, DATA_DIRECTIVE_TOKEN>() {

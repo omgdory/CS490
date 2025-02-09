@@ -1,4 +1,4 @@
-namespace Lexer_x86;
+namespace Token_x86;
 
 public class RegisterToken : Token {
   private static Dictionary<string, REGISTER_TOKEN> _stringToType = new Dictionary<string, REGISTER_TOKEN>() {

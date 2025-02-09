@@ -1,4 +1,4 @@
-namespace Lexer_x86;
+namespace Token_x86;
 
 public enum REGISTER_TOKEN {
   AL,BL,CL,DL,SIL,DIL,BPL,SPL,

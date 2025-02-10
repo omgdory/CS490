@@ -1,8 +1,6 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using Token_x86;
 
-namespace Lexer_x86;
+namespace x86toCPP;
 
 public class Lexer {
   private static Dictionary<string, TOKEN_TYPE> stringToTypeDict = new Dictionary<string, TOKEN_TYPE>() {

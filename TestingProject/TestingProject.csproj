@@ -16,7 +16,7 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Lexer_x86\Lexer_x86.csproj" />
     <ProjectReference Include="..\Token_x86\Token_x86.csproj" />
+    <ProjectReference Include="..\x86toCPP\x86toCPP.csproj" />
   </ItemGroup>
 </Project>

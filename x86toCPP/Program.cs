@@ -11,8 +11,11 @@ public class Program {
       return;
     }
     List<Token> tokens = Lexer.LexTokens(args[0]);
-    foreach(Token t in tokens) {
-      Console.WriteLine(t.ToString());
-    }
+    // foreach(Token t in tokens) {
+    //   Console.WriteLine(t.ToString());
+    // }
+    Parser parser = new Parser();
+    ASTNode syntaxTree = parser.ParseTokens(tokens);
+    syntaxTree.Print();
   }
 }

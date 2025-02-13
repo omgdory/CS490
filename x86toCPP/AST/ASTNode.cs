@@ -18,3 +18,9 @@ public abstract class ASTNode {
     }
   }
 }
+
+public class RootNode : ASTNode {
+  public override void Print(int indent = 0) {
+    PrintChildren(indent);
+  }
+}

@@ -2,6 +2,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Token_x86\Token_x86.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+  </ItemGroup>
   <Target Name="Build" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>

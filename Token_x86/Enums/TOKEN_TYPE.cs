@@ -2,6 +2,7 @@ namespace Token_x86;
 
 public enum TOKEN_TYPE {
   DEFAULT,
+  EOF,
   MNEMONIC,
   REGISTER,
   NUMBER,

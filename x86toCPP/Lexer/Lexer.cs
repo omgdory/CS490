@@ -41,8 +41,10 @@ public class Lexer {
           if(currChar=='\n') lineTracker++;
         }
         // deal with leftover currentValue if necessary
-        if(inComment) res.Add(new Token((int)TOKEN_TYPE.COMMENT, (int)CHANNEL_TYPE.COMMENT, currentValue, lineTracker));
-        else if(!String.IsNullOrWhiteSpace(currentValue)) res.Add(CreateTokenFromString(currentValue, lineTracker));
+        // if(inComment) res.Add(new Token((int)TOKEN_TYPE.COMMENT, (int)CHANNEL_TYPE.COMMENT, currentValue, lineTracker));
+        if(!String.IsNullOrWhiteSpace(currentValue) && !inComment) res.Add(CreateTokenFromString(currentValue, lineTracker));
+        // add eof
+        res.Add(new Token((int)TOKEN_TYPE.EOF, (int)CHANNEL_TYPE.DEFAULT, "", lineTracker));
       }
     }
     catch (Exception ex) {
@@ -55,7 +57,7 @@ public class Lexer {
     // if in comment mode, then just append to currentValue (comment contents)
     if(inComment) {
       if(currChar == '\r' || currChar == '\n') {
-        result.Add(new Token((int)TOKEN_TYPE.COMMENT, (int)CHANNEL_TYPE.COMMENT, currentValue, lineTracker));
+        // result.Add(new Token((int)TOKEN_TYPE.COMMENT, (int)CHANNEL_TYPE.COMMENT, currentValue, lineTracker));
         currentValue = "";
         inComment = false;
         if(currChar == '\r' || currChar == '\n')

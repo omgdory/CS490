@@ -1,8 +1,8 @@
 ; 000_base.asm - mov 2 into rax register
 
 section .data
-; SYS_exit equ 60
-; EXIT_SUCCESS equ 0
+SYS_exit equ 60
+EXIT_SUCCESS equ 0
 
 ; section .text
 

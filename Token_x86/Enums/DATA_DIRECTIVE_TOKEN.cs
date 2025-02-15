@@ -11,4 +11,5 @@ public enum DATA_DIRECTIVE_TOKEN {
   RESW,
   RESD,
   RESQ,
+  DEFAULT
 }

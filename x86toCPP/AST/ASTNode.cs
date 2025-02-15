@@ -21,6 +21,21 @@ public abstract class ASTNode {
 
 public class RootNode : ASTNode {
   public override void Print(int indent = 0) {
+    // indent must be 0, just setting as param so it compiles
+    Console.WriteLine("Syntax Tree (Root):");
+    PrintChildren(0);
+  }
+}
+
+public class DefaultNode : ASTNode {
+  public Token Token { get; set; }
+
+  public DefaultNode(Token token) {
+    Token = token;
+  }
+
+  public override void Print(int indent = 0) {
+    Console.WriteLine($"{new string(' ', indent)}Token: {Token.Value} (DEFAULT)");
     PrintChildren(indent);
   }
 }

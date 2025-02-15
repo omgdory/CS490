@@ -4,6 +4,11 @@ section .data
 SYS_exit equ 60
 EXIT_SUCCESS equ 0
 
+adddd db 17
+hello dw 0xA034
+
+cool_stuff resb 10
+
 ; section .text
 
 ; global _start

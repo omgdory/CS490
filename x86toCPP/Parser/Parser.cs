@@ -44,8 +44,9 @@ public class Parser {
       throw new Exception($"Newline expected: {Tokens[tokensParsed].Line}");
     }
     tokensParsed++;
-    while(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.EOF ||
+    while(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.EOF &&
       Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.SECTION) {
+        // Console.WriteLine("(" + segmentIdentifier + ") " + Tokens[tokensParsed].TokenType + " : " + (int)TOKEN_TYPE.SECTION);
         switch(segmentIdentifier) {
           case SEGMENT_IDENTIFIER_TOKEN.DATA_SEGMENT_IDENTIFIER:
             if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.NEWLINE ||
@@ -56,7 +57,12 @@ public class Parser {
             children.Add(ParseDataDirective());
             break;
           case SEGMENT_IDENTIFIER_TOKEN.TEXT_SEGMENT_IDENTIFIER:
-            // children.Add(ParseInstruction());
+          if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.NEWLINE ||
+            Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.EOF) {
+              tokensParsed++;
+              break;
+            }
+            children.Add(ParseInstruction());
             break;
           default:
             // children.Add(ParseProgram());
@@ -65,6 +71,29 @@ public class Parser {
         if(tokensParsed >= tokenCount) break;
     }
     return new SegmentNode(segmentIdentifier, children);
+  }
+
+  private MnemonicNode ParseInstruction() {
+    // must be -> mnemonic, operand list
+    // mnemonic
+    MNEMONIC_TOKEN opcode = MNEMONIC_TOKEN.DEFAULT;
+    List<ASTNode> operands = new List<ASTNode>();
+    ParsedTokensCountValid();
+    if(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.MNEMONIC) {
+      throw new Exception($"Mnemonic expected, got \"{(TOKEN_TYPE)Tokens[tokensParsed].TokenType}\": {Tokens[tokensParsed].Line}");
+    }
+    if(Tokens[tokensParsed] is MnemonicToken t) {
+      tokensParsed++;
+      opcode = t.MnemonicType;
+    }
+    // operand
+    while(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.NEWLINE &&
+      Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.EOF) {
+      ParsedTokensCountValid();
+      operands.Add(new DefaultNode(Tokens[tokensParsed]));
+      tokensParsed++;
+    }
+    return new MnemonicNode(opcode, operands);
   }
 
   private void ParseSectionKeyword() {

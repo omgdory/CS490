@@ -35,7 +35,7 @@ public class DefaultNode : ASTNode {
   }
 
   public override void Print(int indent = 0) {
-    Console.WriteLine($"{new string(' ', indent)}Token: {Token.Value} (DEFAULT)");
+    Console.WriteLine($"{new string(' ', indent)}Token: {Token.Value}");
     PrintChildren(indent);
   }
 }

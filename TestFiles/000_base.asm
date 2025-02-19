@@ -9,12 +9,12 @@ hello dw 0xA034
 
 cool_stuff resb 10
 
-; section .text
+section .text
 
 ; global _start
 ; _start:
-;   mov rax, 2
+  mov rax, 2
 
-;   mov rax, SYS_exit
-;   mov rdi, EXIT_SUCCESS
-;   syscall
+  mov rax, SYS_exit
+  mov rdi, EXIT_SUCCESS
+  syscall

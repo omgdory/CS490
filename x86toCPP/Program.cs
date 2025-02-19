@@ -11,8 +11,10 @@ public class Program {
       return;
     }
     List<Token> tokens = Lexer.LexTokens(args[0]);
+    int i=0;
     foreach(Token t in tokens) {
-      Console.WriteLine(t.ToString());
+      Console.WriteLine(i + ": " + t.ToString());
+      i++;
     }
     Parser parser = new Parser(tokens);
     parser.SyntaxTreeRoot.Print();

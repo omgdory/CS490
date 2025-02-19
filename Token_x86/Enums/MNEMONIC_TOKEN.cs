@@ -33,4 +33,5 @@ public enum MNEMONIC_TOKEN {
   SYSCALL,
   MACRO_START,
   MACRO_END,
+  DEFAULT,
 }

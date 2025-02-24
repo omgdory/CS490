@@ -1,4 +1,4 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public class MnemonicToken : Token {
   private static Dictionary<string, MNEMONIC_TOKEN> _stringToType = new Dictionary<string, MNEMONIC_TOKEN>() {

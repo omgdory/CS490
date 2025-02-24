@@ -1,4 +1,4 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public enum REGISTER_TOKEN {
   AL,BL,CL,DL,SIL,DIL,BPL,SPL,

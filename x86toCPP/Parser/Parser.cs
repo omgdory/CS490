@@ -1,6 +1,3 @@
-using System.Xml.Serialization;
-using Token_x86;
-
 namespace x86toCPP;
 
 public class Parser {
@@ -59,9 +56,9 @@ public class Parser {
           case SEGMENT_IDENTIFIER_TOKEN.TEXT_SEGMENT_IDENTIFIER:
           if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.NEWLINE ||
             Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.EOF) {
-              tokensParsed++;
-              break;
-            }
+            tokensParsed++;
+            break;
+          }
             children.Add(ParseInstruction());
             break;
           default:

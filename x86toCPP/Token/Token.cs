@@ -1,4 +1,4 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public class Token {
   public int TokenType { get; }

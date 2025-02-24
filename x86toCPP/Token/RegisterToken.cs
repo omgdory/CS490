@@ -1,4 +1,4 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public class RegisterToken : Token {
   private static Dictionary<string, REGISTER_TOKEN> _stringToType = new Dictionary<string, REGISTER_TOKEN>() {

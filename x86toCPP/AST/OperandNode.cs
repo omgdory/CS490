@@ -30,6 +30,9 @@ public class OperandNode : ASTNode {
       case TOKEN_TYPE.NUMBER:
         Console.WriteLine(output + $" (Numeric Value)");
         break;
+      case TOKEN_TYPE.IDENTIFIER:
+        Console.WriteLine(output + $" (Identifier)");
+        break;
       default:
         Console.WriteLine(output);
         break;

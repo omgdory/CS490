@@ -103,7 +103,7 @@ public class Lexer {
         default:
           break;
       }
-      result.Add(new Token((int)foundType, (int)CHANNEL_TYPE.DEFAULT, currentValue+currChar.ToString(), lineTracker));
+      result.Add(new Token((int)foundType, (int)CHANNEL_TYPE.DEFAULT, currentValue, lineTracker));
       currentValue = "";
       return;
     }

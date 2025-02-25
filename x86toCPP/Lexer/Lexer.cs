@@ -3,7 +3,6 @@ namespace x86toCPP;
 public class Lexer {
   private static Dictionary<string, TOKEN_TYPE> stringToTypeDict = new Dictionary<string, TOKEN_TYPE>() {
     {"section", TOKEN_TYPE.SECTION},
-    {"equ", TOKEN_TYPE.EQU},
     {"global", TOKEN_TYPE.GLOBAL},
     {"byte", TOKEN_TYPE.BYTE},
     {"word", TOKEN_TYPE.WORD},

@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace x86toCPP;
 
 public class Parser {
@@ -42,32 +44,60 @@ public class Parser {
     }
     tokensParsed++;
     while(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.EOF &&
-      Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.SECTION) {
-        // Console.WriteLine("(" + segmentIdentifier + ") " + Tokens[tokensParsed].TokenType + " : " + (int)TOKEN_TYPE.SECTION);
-        switch(segmentIdentifier) {
-          case SEGMENT_IDENTIFIER_TOKEN.DATA_SEGMENT_IDENTIFIER:
-            if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.NEWLINE ||
-            Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.EOF) {
-              tokensParsed++;
-              break;
-            }
-            children.Add(ParseDataDirective());
-            break;
-          case SEGMENT_IDENTIFIER_TOKEN.TEXT_SEGMENT_IDENTIFIER:
+    Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.SECTION) {
+      switch(segmentIdentifier) {
+        case SEGMENT_IDENTIFIER_TOKEN.DATA_SEGMENT_IDENTIFIER:
           if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.NEWLINE ||
-            Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.EOF) {
+          Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.EOF) {
             tokensParsed++;
             break;
           }
-            children.Add(ParseInstruction());
-            break;
-          default:
-            // children.Add(ParseProgram());
-            break;
-        }
-        if(tokensParsed >= tokenCount) break;
+          children.Add(ParseDataDirective());
+          break;
+        case SEGMENT_IDENTIFIER_TOKEN.TEXT_SEGMENT_IDENTIFIER:
+          // lookahead
+          switch(Tokens[tokensParsed].TokenType) {
+            // skip new lines and EOF
+            case (int)TOKEN_TYPE.NEWLINE:
+            case (int)TOKEN_TYPE.EOF:
+              tokensParsed++;
+              break;
+            // specially handle items that are not under labels
+            case (int)TOKEN_TYPE.GLOBAL:
+              children.Add(ParseGlobalDeclarator());
+              break;
+            // everything else should be under a label here
+            case (int)TOKEN_TYPE.LABEL:
+              children.Add(ParseLabel());
+              break;
+            // throw exception for unaccounted/unknown tokens
+            default:
+              throw new Exception($"({Tokens[tokensParsed].Line}) Unhandled text segment object: {Tokens[tokensParsed].TokenType}");
+          }
+          break;
+        default:
+          // children.Add(ParseProgram());
+          break;
+      }
+      if(tokensParsed >= tokenCount) break;
     }
     return new SegmentNode(segmentIdentifier, children);
+  }
+
+  private GlobalDeclaratorNode ParseGlobalDeclarator() {
+    ParsedTokensCountValid();
+    if(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.GLOBAL) {
+      throw new Exception($"({Tokens[tokensParsed].Line}) Global declarator expected, got \"{(TOKEN_TYPE)Tokens[tokensParsed].TokenType}\"");
+    }
+    Token globalToken = Tokens[tokensParsed];
+    tokensParsed++;
+    ParsedTokensCountValid();
+    if(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.IDENTIFIER) {
+      throw new Exception($"({Tokens[tokensParsed].Line}) Identifier expected, got \"{(TOKEN_TYPE)Tokens[tokensParsed].TokenType}\"");
+    }
+    Token identifierToken = Tokens[tokensParsed];
+    tokensParsed++;
+    return new GlobalDeclaratorNode(globalToken, identifierToken);
   }
 
   private MnemonicNode ParseInstruction() {
@@ -87,7 +117,12 @@ public class Parser {
     while(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.NEWLINE &&
       Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.EOF) {
       ParsedTokensCountValid();
-      operands.Add(new DefaultNode(Tokens[tokensParsed]));
+      // skip commas for operands
+      if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.COMMA) {
+        tokensParsed++;
+        continue;
+      }
+      operands.Add(new OperandNode(Tokens[tokensParsed]));
       tokensParsed++;
     }
     return new MnemonicNode(opcode, operands);
@@ -108,6 +143,27 @@ public class Parser {
     throw new Exception($"Segment identifier invalid: {Tokens[tokensParsed].Line}");
   }
 
+  private LabelNode ParseLabel() {
+    ParsedTokensCountValid();
+    if(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.LABEL) {
+      throw new Exception($"Label expected, got \"{(TOKEN_TYPE)Tokens[tokensParsed].TokenType}\": {Tokens[tokensParsed].Line}");
+    }
+    Token labelToken = Tokens[tokensParsed];
+    tokensParsed++;
+    List<ASTNode> followingInstructions = new List<ASTNode>();
+    while(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.EOF &&
+    Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.LABEL) {
+      // handle newlines if necessary
+      if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.NEWLINE) {
+        tokensParsed++;
+        continue;
+      }
+      followingInstructions.Add(ParseInstruction());
+      if(tokensParsed >= tokenCount) break;
+    }
+    return new LabelNode(labelToken, followingInstructions);
+  }
+
   private DataDirectiveNode ParseDataDirective() {
     // must be IDENTIFIER -> DATA_DIRECTIVE -> operand list
     // identifier
@@ -116,7 +172,7 @@ public class Parser {
     if(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.IDENTIFIER) {
       throw new Exception($"Identifier expected, got \"{(TOKEN_TYPE)Tokens[tokensParsed].TokenType}\": {Tokens[tokensParsed].Line}");
     }
-    identifier = new DefaultNode(Tokens[tokensParsed]).Token.Value;
+    identifier = Tokens[tokensParsed].Value;
     tokensParsed++;
     // data directive
     DATA_DIRECTIVE_TOKEN directive;
@@ -136,7 +192,12 @@ public class Parser {
     while(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.NEWLINE &&
       Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.EOF) {
       ParsedTokensCountValid();
-      operands.Add(new DefaultNode(Tokens[tokensParsed]));
+      // skip commas for operands
+      if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.COMMA) {
+        tokensParsed++;
+        continue;
+      }
+      operands.Add(new OperandNode(Tokens[tokensParsed]));
       tokensParsed++;
     }
     // skip newline or eof

@@ -6,6 +6,8 @@ public enum MNEMONIC_TOKEN {
   SUB,
   MUL,
   DIV,
+  IMUL,
+  IDIV,
   CMP,
   JMP,
   JE,

@@ -7,6 +7,8 @@ public class MnemonicToken : Token {
     {"sub", MNEMONIC_TOKEN.SUB},
     {"mul", MNEMONIC_TOKEN.MUL},
     {"div", MNEMONIC_TOKEN.DIV},
+    {"imul", MNEMONIC_TOKEN.IMUL},
+    {"idiv", MNEMONIC_TOKEN.IDIV},
     {"cmp", MNEMONIC_TOKEN.CMP},
     {"jmp", MNEMONIC_TOKEN.JMP},
     {"je", MNEMONIC_TOKEN.JE},

@@ -1,4 +1,4 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public enum SEGMENT_IDENTIFIER_TOKEN
 {

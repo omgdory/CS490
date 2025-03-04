@@ -1,16 +1,15 @@
-using Token_x86;
-
 namespace x86toCPP;
 
 public class Lexer {
   private static Dictionary<string, TOKEN_TYPE> stringToTypeDict = new Dictionary<string, TOKEN_TYPE>() {
     {"section", TOKEN_TYPE.SECTION},
-    {"equ", TOKEN_TYPE.EQU},
     {"global", TOKEN_TYPE.GLOBAL},
     {"byte", TOKEN_TYPE.BYTE},
     {"word", TOKEN_TYPE.WORD},
     {"dword", TOKEN_TYPE.DWORD},
     {"qword", TOKEN_TYPE.QWORD},
+    {"%macro", TOKEN_TYPE.MACRO_START},
+    {"%endmacro", TOKEN_TYPE.MACRO_END},
   };
 
   private static List<char> special_chars = new List<char>
@@ -41,8 +40,10 @@ public class Lexer {
           if(currChar=='\n') lineTracker++;
         }
         // deal with leftover currentValue if necessary
-        if(inComment) res.Add(new Token((int)TOKEN_TYPE.COMMENT, (int)CHANNEL_TYPE.COMMENT, currentValue, lineTracker));
-        else if(!String.IsNullOrWhiteSpace(currentValue)) res.Add(CreateTokenFromString(currentValue, lineTracker));
+        // if(inComment) res.Add(new Token((int)TOKEN_TYPE.COMMENT, (int)CHANNEL_TYPE.COMMENT, currentValue, lineTracker));
+        if(!String.IsNullOrWhiteSpace(currentValue) && !inComment) res.Add(CreateTokenFromString(currentValue, lineTracker));
+        // add eof
+        res.Add(new Token((int)TOKEN_TYPE.EOF, (int)CHANNEL_TYPE.DEFAULT, "", lineTracker));
       }
     }
     catch (Exception ex) {
@@ -55,7 +56,7 @@ public class Lexer {
     // if in comment mode, then just append to currentValue (comment contents)
     if(inComment) {
       if(currChar == '\r' || currChar == '\n') {
-        result.Add(new Token((int)TOKEN_TYPE.COMMENT, (int)CHANNEL_TYPE.COMMENT, currentValue, lineTracker));
+        // result.Add(new Token((int)TOKEN_TYPE.COMMENT, (int)CHANNEL_TYPE.COMMENT, currentValue, lineTracker));
         currentValue = "";
         inComment = false;
         if(currChar == '\r' || currChar == '\n')
@@ -103,7 +104,7 @@ public class Lexer {
         default:
           break;
       }
-      result.Add(new Token((int)foundType, (int)CHANNEL_TYPE.DEFAULT, currentValue+currChar.ToString(), lineTracker));
+      result.Add(new Token((int)foundType, (int)CHANNEL_TYPE.DEFAULT, currentValue, lineTracker));
       currentValue = "";
       return;
     }
@@ -118,14 +119,19 @@ public class Lexer {
       result.Add(new Token((int)tokenType, (int)CHANNEL_TYPE.DEFAULT, currChar.ToString(), lineTracker));
       return;
     }
+    // newline -> save
+    if(currChar == '\n') {
+      result.Add(new Token((int)TOKEN_TYPE.NEWLINE, (int)CHANNEL_TYPE.DEFAULT, NEWLINE_LITERAL, lineTracker));
+      return;
+    }
     // whitespace -> handle current token, then add a newline token if necessary
     if(currChar == ' ' || currChar == '\r' || currChar == '\t' || currChar == '\n') {
       if(currentValue.Length == 0) return;
       // ignore whitespace
       if(!String.IsNullOrWhiteSpace(currentValue)) result.Add(CreateTokenFromString(currentValue, lineTracker));
       currentValue = "";
-      if(currChar == '\r' || currChar == '\n')
-        result.Add(new Token((int)TOKEN_TYPE.NEWLINE, (int)CHANNEL_TYPE.DEFAULT, NEWLINE_LITERAL, lineTracker));
+      // if(currChar == '\r' || currChar == '\n')
+      //   result.Add(new Token((int)TOKEN_TYPE.NEWLINE, (int)CHANNEL_TYPE.DEFAULT, NEWLINE_LITERAL, lineTracker));
       return;
     }
     // anything else

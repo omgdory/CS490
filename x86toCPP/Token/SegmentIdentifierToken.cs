@@ -1,4 +1,4 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public class SegmentIdentifierToken : Token {
   private static Dictionary<string, SEGMENT_IDENTIFIER_TOKEN> _stringToType = new Dictionary<string, SEGMENT_IDENTIFIER_TOKEN>() {

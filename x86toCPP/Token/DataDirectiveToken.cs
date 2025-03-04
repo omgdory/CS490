@@ -1,4 +1,4 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public class DataDirectiveToken : Token {
   private static Dictionary<string, DATA_DIRECTIVE_TOKEN> _stringToType = new Dictionary<string, DATA_DIRECTIVE_TOKEN>() {
@@ -12,6 +12,7 @@ public class DataDirectiveToken : Token {
     {"resw", DATA_DIRECTIVE_TOKEN.RESW},
     {"resd", DATA_DIRECTIVE_TOKEN.RESD},
     {"resq", DATA_DIRECTIVE_TOKEN.RESQ},
+    {"equ", DATA_DIRECTIVE_TOKEN.EQU},
   };
 
   public static Dictionary<string, DATA_DIRECTIVE_TOKEN> StringToType { get; }

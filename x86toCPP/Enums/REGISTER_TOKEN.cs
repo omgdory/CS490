@@ -1,4 +1,4 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public enum REGISTER_TOKEN {
   AL,BL,CL,DL,SIL,DIL,BPL,SPL,
@@ -10,4 +10,5 @@ public enum REGISTER_TOKEN {
   R8D,R9D,R10D,R11D,R12D,R13D,R14D,R15D,
   RAX,RBX,RCX,RDX,RSI,RDI,RBP,RSP,
   R8,R9,R10,R11,R12,R13,R14,R15,
+  DEFAULT
 }

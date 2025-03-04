@@ -1,7 +1,8 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public enum TOKEN_TYPE {
   DEFAULT,
+  EOF,
   MNEMONIC,
   REGISTER,
   NUMBER,
@@ -19,7 +20,8 @@ public enum TOKEN_TYPE {
   COMMA,
   GLOBAL,
   SECTION,
-  EQU,
+  MACRO_START,
+  MACRO_END,
   DATA_DIRECTIVE,
   SEGMENT_IDENTIFIER,
   MACRO_ARGUMENT,

@@ -1,4 +1,4 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public enum DATA_DIRECTIVE_TOKEN {
   DB,
@@ -11,4 +11,6 @@ public enum DATA_DIRECTIVE_TOKEN {
   RESW,
   RESD,
   RESQ,
+  EQU,
+  DEFAULT
 }

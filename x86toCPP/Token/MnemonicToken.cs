@@ -1,4 +1,4 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public class MnemonicToken : Token {
   private static Dictionary<string, MNEMONIC_TOKEN> _stringToType = new Dictionary<string, MNEMONIC_TOKEN>() {
@@ -7,6 +7,8 @@ public class MnemonicToken : Token {
     {"sub", MNEMONIC_TOKEN.SUB},
     {"mul", MNEMONIC_TOKEN.MUL},
     {"div", MNEMONIC_TOKEN.DIV},
+    {"imul", MNEMONIC_TOKEN.IMUL},
+    {"idiv", MNEMONIC_TOKEN.IDIV},
     {"cmp", MNEMONIC_TOKEN.CMP},
     {"jmp", MNEMONIC_TOKEN.JMP},
     {"je", MNEMONIC_TOKEN.JE},
@@ -32,8 +34,6 @@ public class MnemonicToken : Token {
     {"shl", MNEMONIC_TOKEN.SHL},
     {"shr", MNEMONIC_TOKEN.SHR},
     {"syscall", MNEMONIC_TOKEN.SYSCALL},
-    {"%macro", MNEMONIC_TOKEN.MACRO_START},
-    {"%endmacro", MNEMONIC_TOKEN.MACRO_END},
   };
   public static Dictionary<string, MNEMONIC_TOKEN> StringToType { get; }
   public MNEMONIC_TOKEN MnemonicType { get; }

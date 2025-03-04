@@ -1,4 +1,4 @@
-namespace Token_x86;
+namespace x86toCPP;
 
 public enum MNEMONIC_TOKEN {
   MOV,
@@ -6,6 +6,8 @@ public enum MNEMONIC_TOKEN {
   SUB,
   MUL,
   DIV,
+  IMUL,
+  IDIV,
   CMP,
   JMP,
   JE,
@@ -31,6 +33,5 @@ public enum MNEMONIC_TOKEN {
   SHL,
   SHR,
   SYSCALL,
-  MACRO_START,
-  MACRO_END,
+  DEFAULT,
 }

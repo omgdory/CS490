@@ -119,14 +119,19 @@ public class Lexer {
       result.Add(new Token((int)tokenType, (int)CHANNEL_TYPE.DEFAULT, currChar.ToString(), lineTracker));
       return;
     }
+    // newline -> save
+    if(currChar == '\n') {
+      result.Add(new Token((int)TOKEN_TYPE.NEWLINE, (int)CHANNEL_TYPE.DEFAULT, NEWLINE_LITERAL, lineTracker));
+      return;
+    }
     // whitespace -> handle current token, then add a newline token if necessary
     if(currChar == ' ' || currChar == '\r' || currChar == '\t' || currChar == '\n') {
       if(currentValue.Length == 0) return;
       // ignore whitespace
       if(!String.IsNullOrWhiteSpace(currentValue)) result.Add(CreateTokenFromString(currentValue, lineTracker));
       currentValue = "";
-      if(currChar == '\r' || currChar == '\n')
-        result.Add(new Token((int)TOKEN_TYPE.NEWLINE, (int)CHANNEL_TYPE.DEFAULT, NEWLINE_LITERAL, lineTracker));
+      // if(currChar == '\r' || currChar == '\n')
+      //   result.Add(new Token((int)TOKEN_TYPE.NEWLINE, (int)CHANNEL_TYPE.DEFAULT, NEWLINE_LITERAL, lineTracker));
       return;
     }
     // anything else

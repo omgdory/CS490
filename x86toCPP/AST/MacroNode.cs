@@ -3,10 +3,12 @@ namespace x86toCPP;
 public class MacroNode : ASTNode {
   Token Token { get; set;}
   string Identifier { get; set; }
+  Token ArgumentsToken { get; set;}
 
-  public MacroNode(Token token, List<ASTNode> followingInstructions) {
+  public MacroNode(Token token, List<ASTNode> followingInstructions, Token argumentsToken) {
     Token = token;
     Identifier = Token.Value;
+    ArgumentsToken = argumentsToken;
     Children.AddRange(followingInstructions);
   }
 

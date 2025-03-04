@@ -65,11 +65,11 @@ public class Parser {
       HandleTextSegment(ref body);
       if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.MACRO_END)
         break;
-      tokensParsed++;
+      // tokensParsed++;
     }
     // macro end
     tokensParsed++;
-    return new MacroNode(identifierToken, body);
+    return new MacroNode(identifierToken, body, argumentsToken);
   }
 
   private string CreateExceptionString_Expected(string expected) {

@@ -27,11 +27,63 @@ public class Parser {
         tokensParsed++;
         continue;
       }
-      SegmentNode currSection = ParseSection(); 
-      result.Children.Add(currSection);
-      Console.WriteLine($"Section {currSection.SegmentIdentifier} Parsed");
+      switch(Tokens[tokensParsed].TokenType) {
+        case (int)TOKEN_TYPE.SECTION:
+          SegmentNode currSection = ParseSection(); 
+          result.Children.Add(currSection);
+          Console.WriteLine($"Section {currSection.SegmentIdentifier} Parsed");
+          break;
+        case (int)TOKEN_TYPE.MACRO_START:
+          MacroNode currMacro = ParseMacro();
+          result.Children.Add(currMacro);
+          break;
+        default:
+          throw new Exception($"FATAL: Unhandled parse at token {tokensParsed}\nGot token type {Tokens[tokensParsed].TokenType}");
+      }
     } 
     return result;
+  }
+
+  private MacroNode ParseMacro() {
+    // macro_label -> identifier -> number -> newline
+    CheckToken(TOKEN_TYPE.MACRO_START, CreateExceptionString_Expected("Macro"));
+    tokensParsed++;
+    CheckToken(TOKEN_TYPE.IDENTIFIER, CreateExceptionString_Expected("Identifier"));
+    Token identifierToken = Tokens[tokensParsed];
+    tokensParsed++;
+    CheckToken(TOKEN_TYPE.NUMBER, CreateExceptionString_Expected("Number"));
+    Token argumentsToken = Tokens[tokensParsed];
+    tokensParsed++;
+    CheckToken(TOKEN_TYPE.NEWLINE, CreateExceptionString_Expected("Newline"));
+    tokensParsed++;
+    List<ASTNode> body = new List<ASTNode>();
+    while(tokensParsed < tokenCount &&
+    Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.MACRO_END) {
+      if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.EOF) {
+        throw new Exception($"({Tokens[tokensParsed].Line}) Macro unterminated.");
+      }
+      HandleTextSegment(ref body);
+      if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.MACRO_END)
+        break;
+      tokensParsed++;
+    }
+    // macro end
+    tokensParsed++;
+    return new MacroNode(identifierToken, body);
+  }
+
+  private string CreateExceptionString_Expected(string expected) {
+    return $"({Tokens[tokensParsed].Line}) " + expected + $" expected, got \"{(TOKEN_TYPE)Tokens[tokensParsed].TokenType}\"";
+  }
+
+  private void CheckToken(TOKEN_TYPE tt, string exceptionString) {
+    ParsedTokensCountValid();
+    if(Tokens == null) {
+      throw new Exception($"FATAL: Tokens list is null. Tokens parsed = {tokensParsed}");
+    }
+    if(Tokens[tokensParsed].TokenType != (int)tt) {
+      throw new Exception(exceptionString);
+    }
   }
 
   private SegmentNode ParseSection() {
@@ -74,6 +126,10 @@ public class Parser {
   private void HandleTextSegment(ref List<ASTNode> children) {
     // lookahead
     switch(Tokens[tokensParsed].TokenType) {
+      // if mnemonic, then add a phantom label as parent node
+      case (int)TOKEN_TYPE.MNEMONIC:
+        children.Add(ParseLabel(false));
+        break;
       // skip new lines and EOF
       case (int)TOKEN_TYPE.NEWLINE:
       case (int)TOKEN_TYPE.EOF:
@@ -84,12 +140,13 @@ public class Parser {
         children.Add(ParseGlobalDeclarator());
         break;
       // everything else should be under a label here
+      case (int)TOKEN_TYPE.MACRO_LABEL:
       case (int)TOKEN_TYPE.LABEL:
-        children.Add(ParseLabel());
+        children.Add(ParseLabel(true));
         break;
       // throw exception for unaccounted/unknown tokens
       default:
-        throw new Exception($"({Tokens[tokensParsed].Line}) Unhandled text segment object: {Tokens[tokensParsed].TokenType}");
+        throw new Exception($"({Tokens[tokensParsed].Line}) Unhandled text segment object: {(TOKEN_TYPE)Tokens[tokensParsed].TokenType}");
     }
   }
 
@@ -115,8 +172,9 @@ public class Parser {
     MNEMONIC_TOKEN opcode = MNEMONIC_TOKEN.DEFAULT;
     List<ASTNode> operands = new List<ASTNode>();
     ParsedTokensCountValid();
-    if(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.MNEMONIC) {
-      throw new Exception($"Mnemonic expected, got \"{(TOKEN_TYPE)Tokens[tokensParsed].TokenType}\": {Tokens[tokensParsed].Line}");
+    if(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.MNEMONIC &&
+    Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.IDENTIFIER) {
+      throw new Exception($"Mnemonic or (macro) identifier expected, got \"{(TOKEN_TYPE)Tokens[tokensParsed].TokenType}\": {Tokens[tokensParsed].Line}");
     }
     if(Tokens[tokensParsed] is MnemonicToken t) {
       tokensParsed++;
@@ -152,16 +210,22 @@ public class Parser {
     throw new Exception($"Segment identifier invalid: {Tokens[tokensParsed].Line}");
   }
 
-  private LabelNode ParseLabel() {
+  private LabelNode ParseLabel(bool labelExpected) {
     ParsedTokensCountValid();
-    if(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.LABEL) {
-      throw new Exception($"Label expected, got \"{(TOKEN_TYPE)Tokens[tokensParsed].TokenType}\": {Tokens[tokensParsed].Line}");
+    Token labelToken = new Token((int)TOKEN_TYPE.LABEL, (int)CHANNEL_TYPE.DEFAULT, "__DEFAULT__", Tokens[tokensParsed].Line);
+    if(labelExpected) {
+      if(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.LABEL &&
+      Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.MACRO_LABEL) {
+        throw new Exception($"Label expected, got \"{(TOKEN_TYPE)Tokens[tokensParsed].TokenType}\": {Tokens[tokensParsed].Line}");
+      }
+      labelToken = Tokens[tokensParsed];
+      tokensParsed++;
     }
-    Token labelToken = Tokens[tokensParsed];
-    tokensParsed++;
     List<ASTNode> followingInstructions = new List<ASTNode>();
     while(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.EOF &&
-    Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.LABEL) {
+    Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.MACRO_END &&
+    Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.LABEL &&
+    Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.MACRO_LABEL) {
       // handle newlines if necessary
       if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.NEWLINE) {
         tokensParsed++;

@@ -8,6 +8,8 @@ public class Lexer {
     {"word", TOKEN_TYPE.WORD},
     {"dword", TOKEN_TYPE.DWORD},
     {"qword", TOKEN_TYPE.QWORD},
+    {"%macro", TOKEN_TYPE.MACRO_START},
+    {"%endmacro", TOKEN_TYPE.MACRO_END},
   };
 
   private static List<char> special_chars = new List<char>

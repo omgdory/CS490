@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace x86toCPP;
 
@@ -169,6 +170,7 @@ public class Parser {
   private MnemonicNode ParseInstruction() {
     // must be -> mnemonic, operand list
     // mnemonic
+    Token token = new Token();
     MNEMONIC_TOKEN opcode = MNEMONIC_TOKEN.DEFAULT;
     List<ASTNode> operands = new List<ASTNode>();
     ParsedTokensCountValid();
@@ -178,21 +180,81 @@ public class Parser {
     }
     if(Tokens[tokensParsed] is MnemonicToken t) {
       tokensParsed++;
+      token = t;
       opcode = t.MnemonicType;
     }
     // operand
     while(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.NEWLINE &&
-      Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.EOF) {
+    Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.EOF) {
       ParsedTokensCountValid();
       // skip commas for operands
       if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.COMMA) {
         tokensParsed++;
         continue;
       }
+      // handle memory access
+      if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.BYTE ||
+      Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.WORD ||
+      Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.DWORD ||
+      Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.QWORD) {
+        operands.Add(ParseMemoryAccess());
+        // operands.Add(new OperandNode(new Token(0, 0, "mem access", Tokens[tokensParsed].Line)));
+        tokensParsed++;
+        continue;
+      }
+      // otherwise, normal operand
       operands.Add(new OperandNode(Tokens[tokensParsed]));
       tokensParsed++;
     }
-    return new MnemonicNode(opcode, operands);
+    return new MnemonicNode(token, opcode, operands);
+  }
+
+  private MemoryAccessNode ParseMemoryAccess() {
+    // access (dword)
+    Token accessTypeToken = Tokens[tokensParsed];
+    tokensParsed++;
+    ParsedTokensCountValid();
+    // [
+    CheckToken(TOKEN_TYPE.OPEN_BRACK, CreateExceptionString_Expected("Open bracket '['"));
+    tokensParsed++;
+    ParsedTokensCountValid();
+    // address (rbx)
+    Token address = Tokens[tokensParsed];
+    tokensParsed++;
+    ParsedTokensCountValid();
+    // if no offset, then just set them to default tokens
+    if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.CLOSE_BRACK) {
+      return new MemoryAccessNode(accessTypeToken, address, new Token(), new Token());
+    }
+    // offset operation (must be addition)
+    if(Tokens[tokensParsed].Value != "+") {
+      throw new Exception($"({Tokens[tokensParsed].Line}) Plus sign (\"+\") expected, got {Tokens[tokensParsed].Value}.");
+    } else {
+      tokensParsed++;
+    }
+    // offset itself
+    ParsedTokensCountValid();
+    Token offset = Tokens[tokensParsed];
+    tokensParsed++;
+    ParsedTokensCountValid();
+    // if no offset multiplier, then just set to default token
+    if(Tokens[tokensParsed].TokenType == (int)TOKEN_TYPE.CLOSE_BRACK) {
+      return new MemoryAccessNode(accessTypeToken, address, offset, new Token());
+    }
+    // offset multiplier operation (must be multiplication)
+    if(Tokens[tokensParsed].Value != "*") {
+      throw new Exception($"({Tokens[tokensParsed].Line}) Multiplication sign (\"*\") expected, got {Tokens[tokensParsed].Value}.");
+    } else {
+      tokensParsed++;
+    }
+    // offset multiplier itself
+    ParsedTokensCountValid();
+    Token offsetMultiplier = Tokens[tokensParsed];
+    tokensParsed++;
+    // must be closed now
+    CheckToken(TOKEN_TYPE.CLOSE_BRACK, CreateExceptionString_Expected("Close bracket ']'"));
+    tokensParsed++;
+    return new MemoryAccessNode(accessTypeToken, address, offset, offsetMultiplier);
   }
 
   private void ParseSectionKeyword() {
@@ -203,7 +265,7 @@ public class Parser {
   }
 
   private SEGMENT_IDENTIFIER_TOKEN ParseSegmentIdentifier() {
-   if(Tokens[tokensParsed] is SegmentIdentifierToken t) {
+    if(Tokens[tokensParsed] is SegmentIdentifierToken t) {
       tokensParsed++; 
       return t.IdentifierType;
     }

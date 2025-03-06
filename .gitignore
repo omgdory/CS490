@@ -10,3 +10,4 @@ packages
 # ignore testing files (directories)
 coveragereport/
 TestResults/
+Notes/SampleOutput

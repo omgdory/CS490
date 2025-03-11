@@ -1,7 +1,7 @@
 namespace x86toCPP;
 
 public interface Visitor {
-  // Default functionality: visiti all of the children
+  // Default functionality: visit all of the children
 
   // Visit the root of the syntax tree
   public void visitRoot(RootNode node) {
@@ -72,5 +72,4 @@ public interface Visitor {
       child.accept(this);
     }
   }
-
 }

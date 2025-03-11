@@ -1,31 +1,14 @@
 namespace x86toCPP;
 
-// Visitor class for visiting AST parse tree nodes
-// functionality must be added -> abstract
-public abstract class Visitor {
-  private RootNode ParseTree { get; set; }
-  private VisitorType Type { get; set; }
-
-  public Visitor(RootNode parseTree, VisitorType type) {
-    ParseTree = parseTree;
-    Type = type;
-  }
-
-  // wrapper function with error checking to allow Visitor instance to be interacted with
-  public void visit() {
-    if (ParseTree == null) {
-      throw new Exception($"FATAL: visitor pattern \"{Type}\" has a null parse tree reference.");
-    }
-    visitRoot();
-  }
-
-  // where the visitor pattern starts
-  protected void visitRoot() {
-    foreach(ASTNode child in ParseTree.Children) {
-      // visit(child);
-    }
-  }
-
-  // each node
-
+public interface Visitor {
+  public abstract void visitRoot(RootNode node);
+  public abstract void visitDefault(DefaultNode node);
+  public abstract void visitDataDirective(DataDirectiveNode node);
+  public abstract void visitGlobalDeclarator(GlobalDeclaratorNode node);
+  public abstract void visitLabel(LabelNode node);
+  public abstract void visitMacro(MacroNode node);
+  public abstract void visitMemoryAccess(MemoryAccessNode node);
+  public abstract void visitMnemonic(MnemonicNode node);
+  public abstract void visitOperand(OperandNode node);
+  public abstract void visitSegment(SegmentNode node);
 }

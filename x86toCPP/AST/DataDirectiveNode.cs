@@ -11,6 +11,10 @@ public class DataDirectiveNode : ASTNode {
     Children.AddRange(operands);
   }
 
+  public override void accept(Visitor visitor) {
+    visitor.visitDataDirective(this);
+  }
+
   // print to screen
   public override void Print(int indent = 0) {
     Console.WriteLine($"{new string(' ', indent)}Data Directive: {Identifier}, {Directive}");

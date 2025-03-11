@@ -20,6 +20,10 @@ public class OperandNode : ASTNode {
       REGISTER_TOKEN.DEFAULT;
   }
 
+  public override void accept(Visitor visitor) {
+    visitor.visitOperand(this);
+  }
+
   public override void Print(int indent = 0) {
     string output = $"{new string(' ', indent)}Operand: {Value}";
     switch(OperandType) {

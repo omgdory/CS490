@@ -1,16 +1,28 @@
 namespace x86toCPP;
 
+using System.Collections;
+using System.Runtime.InteropServices;
+
+
 public class NameChecker : Visitor {
-  public void visitRoot(RootNode node) {
-
+  // name
+  // outer scope (label)
+  // map string to "SymbolEntry"
+  //  macro, block (label), variable (identifier)
+  //  name + value
+  public string Name { get; private set; }
+  public Hashtable SymbolTable { get; private set; }
+  
+  public NameChecker() {
+    Name = "NameChecker";
+    SymbolTable = new Hashtable();
   }
 
-  public void visitDefault(DefaultNode node) {
-
-  }
+  // visitRoot, visitDefault -> just visit children
 
   public void visitDataDirective(DataDirectiveNode node) {
-
+    // check if it already exists
+    Console.WriteLine($"Visiting identifier {node.IdentifierToken.Value}");
   }
 
   public void visitGlobalDeclarator(GlobalDeclaratorNode node) {

@@ -1,21 +1,25 @@
 namespace x86toCPP;
 
-using System.Collections;
-using System.Runtime.InteropServices;
-
-
+/// <summary>
+/// Visitor pattern implementation to visit the parse tree.
+/// Ensures that identifiers are initialized and subsequently referenced appropriately.
+/// </summary>
 public class NameChecker : Visitor {
   // name
   // outer scope (label)
   // map string to "SymbolEntry"
   //  macro, block (label), variable (identifier)
   //  name + value
-  public string Name { get; private set; }
-  public Hashtable SymbolTable { get; private set; }
+  
+  // add to prefix of macros
+  public static string MACRO_PREFIX = "__$$";
+
+  public VisitorType Type { get; private set; }
+  public SymbolTable SymbolTable { get; private set; }
   
   public NameChecker() {
-    Name = "NameChecker";
-    SymbolTable = new Hashtable();
+    Type = VisitorType.NameChecker;
+    SymbolTable = new SymbolTable();
   }
 
   // visitRoot, visitDefault -> just visit children
@@ -52,5 +56,4 @@ public class NameChecker : Visitor {
   public void visitSegment(SegmentNode node) {
 
   }
-
 }

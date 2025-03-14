@@ -13,6 +13,10 @@ public class MemoryAccessNode : ASTNode {
     OffsetMultiplier = offsetMultiplier;
   }
 
+  public override void accept(Visitor visitor) {
+    visitor.visitMemoryAccess(this);
+  }
+
   public override void Print(int indent = 0) {
     string output = $"{new string(' ', indent)}Memory Access: {AccessTypeToken.Value}\n";
     output += $"{new string(' ', indent+2)}Address: {Address.Value}\n";

@@ -7,6 +7,9 @@ public abstract class ASTNode {
     Children = new List<ASTNode>();
   }
 
+  // handling visitor pattern
+  public abstract void accept(Visitor visitor);
+
   // for outputting to the terminal
   public abstract void Print(int indent = 0);
   // only call from within (children too)
@@ -18,6 +21,10 @@ public abstract class ASTNode {
 }
 
 public class RootNode : ASTNode {
+  public override void accept(Visitor visitor) {
+    visitor.visitRoot(this);
+  }
+
   public override void Print(int indent = 0) {
     // indent must be 0, just setting as param so it compiles
     Console.WriteLine("Syntax Tree (Root):");
@@ -30,6 +37,10 @@ public class DefaultNode : ASTNode {
 
   public DefaultNode(Token token) {
     Token = token;
+  }
+
+  public override void accept(Visitor visitor) {
+    visitor.visitDefault(this);
   }
 
   public override void Print(int indent = 0) {

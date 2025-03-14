@@ -10,6 +10,10 @@ public class GlobalDeclaratorNode : ASTNode {
     Children.Clear();
   }
 
+  public override void accept(Visitor visitor) {
+    visitor.visitGlobalDeclarator(this);
+  }
+
   // print to screen
   public override void Print(int indent = 0) {
     Console.WriteLine($"{new string(' ', indent)}Global: {GlobalToken.Value} , {TargetToken.Value}");

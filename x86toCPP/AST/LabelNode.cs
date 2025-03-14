@@ -10,6 +10,10 @@ public class LabelNode : ASTNode {
     Children.AddRange(followingInstructions);
   }
 
+  public override void accept(Visitor visitor) {
+    visitor.visitLabel(this);
+  }
+
   // print to screen
   public override void Print(int indent = 0) {
     Console.WriteLine($"{new string(' ', indent)}Label: {Identifier}, line {Token.Line}");

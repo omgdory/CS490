@@ -8,6 +8,10 @@ public class SegmentNode : ASTNode {
     Children.AddRange(instructionNodes);
   }
 
+  public override void accept(Visitor visitor) {
+    visitor.visitSegment(this);
+  }
+
   // print to screen
   public override void Print(int indent = 0) {
     Console.WriteLine($"{new string(' ', indent)}Segment: {SegmentIdentifier}");

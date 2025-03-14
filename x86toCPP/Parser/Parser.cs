@@ -302,12 +302,12 @@ public class Parser {
   private DataDirectiveNode ParseDataDirective() {
     // must be IDENTIFIER -> DATA_DIRECTIVE -> operand list
     // identifier
-    string identifier;
+    Token identifierToken;
     ParsedTokensCountValid();
     if(Tokens[tokensParsed].TokenType != (int)TOKEN_TYPE.IDENTIFIER) {
       throw new Exception($"Identifier expected, got \"{(TOKEN_TYPE)Tokens[tokensParsed].TokenType}\": {Tokens[tokensParsed].Line}");
     }
-    identifier = Tokens[tokensParsed].Value;
+    identifierToken = Tokens[tokensParsed];
     tokensParsed++;
     // data directive
     DATA_DIRECTIVE_TOKEN directive;
@@ -336,7 +336,7 @@ public class Parser {
     }
     // skip newline or eof
     // tokensParsed++;
-    return new DataDirectiveNode(identifier, directive, operands);
+    return new DataDirectiveNode(identifierToken, directive, operands);
   }
 
   private void ParsedTokensCountValid() {

@@ -10,6 +10,10 @@ public class MnemonicNode : ASTNode {
     Children.AddRange(operands);
   }
 
+  public override void accept(Visitor visitor) {
+    visitor.visitMnemonic(this);
+  }
+
   // print to screen
   public override void Print(int indent = 0) {
     Console.WriteLine($"{new string(' ', indent)}Instruction: {Opcode}, line {Token.Line}");

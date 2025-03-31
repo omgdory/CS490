@@ -19,41 +19,56 @@ public class NameChecker : Visitor {
   
   public NameChecker() {
     Type = VisitorType.NameChecker;
-    SymbolTable = new SymbolTable();
+    SymbolTable = new SymbolTable("NameChecker");
+  }
+
+  // Call default implementation to visit the root
+  public void Execute(RootNode rootNode) {
+    Console.WriteLine($"Performing visitor pattern {Type}.");
+    ((Visitor)this).visitRoot(rootNode);
   }
 
   // visitRoot, visitDefault -> just visit children
 
-  public void visitDataDirective(DataDirectiveNode node) {
+  private void visitDataDirective(DataDirectiveNode node) {
     // check if it already exists
     Console.WriteLine($"Visiting identifier {node.IdentifierToken.Value}");
+    try {
+      SymbolEntry entry = new SymbolEntry(node.IdentifierToken.Value, node);
+      SymbolTable.AddSymbol(entry);
+    } catch {
+      throw new Exception($"Redefinition of data directive {node.IdentifierToken.Value} on line {node.IdentifierToken.Line}.");
+    }
   }
 
-  public void visitGlobalDeclarator(GlobalDeclaratorNode node) {
-
-  }
-
-  public void visitLabel(LabelNode node) {
-
-  }
-
-  public void visitMacro(MacroNode node) {
-
-  }
-
-  public void visitMemoryAccess(MemoryAccessNode node) {
+  private void visitGlobalDeclarator(GlobalDeclaratorNode node) {
 
   }
 
-  public void visitMnemonic(MnemonicNode node) {
+  private void visitLabel(LabelNode node) {
 
   }
 
-  public void visitOperand(OperandNode node) {
+  private void visitMacro(MacroNode node) {
 
   }
 
-  public void visitSegment(SegmentNode node) {
+  private void visitMemoryAccess(MemoryAccessNode node) {
 
+  }
+
+  private void visitMnemonic(MnemonicNode node) {
+
+  }
+
+  private void visitOperand(OperandNode node) {
+
+  }
+
+  private void visitSegment(SegmentNode node) {
+    Console.WriteLine($"Visiting segment {node.SegmentIdentifier}.");
+    foreach(ASTNode child in node.Children) {
+      child.accept(this);
+    }
   }
 }

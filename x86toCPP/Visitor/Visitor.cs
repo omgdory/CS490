@@ -5,6 +5,7 @@ public interface Visitor {
 
   // Visit the root of the syntax tree
   public void visitRoot(RootNode node) {
+    Console.WriteLine("Visitng root.");
     foreach(ASTNode child in node.Children) {
       child.accept(this);
     }

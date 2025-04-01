@@ -25,12 +25,18 @@ public class NameChecker : Visitor {
   // Call default implementation to visit the root
   public void Execute(RootNode rootNode) {
     Console.WriteLine($"Performing visitor pattern {Type}.");
-    ((Visitor)this).visitRoot(rootNode);
+    rootNode.accept(this);
   }
 
-  // visitRoot, visitDefault -> just visit children
+  // visitDefault -> just visit children
+  public void visitRoot(RootNode node) {
+    Console.WriteLine("Visitng root.");
+    foreach(ASTNode child in node.Children) {
+      child.accept(this);
+    }
+  }
 
-  private void visitDataDirective(DataDirectiveNode node) {
+  public void visitDataDirective(DataDirectiveNode node) {
     // check if it already exists
     Console.WriteLine($"Visiting identifier {node.IdentifierToken.Value}");
     try {
@@ -41,31 +47,31 @@ public class NameChecker : Visitor {
     }
   }
 
-  private void visitGlobalDeclarator(GlobalDeclaratorNode node) {
+  public void visitGlobalDeclarator(GlobalDeclaratorNode node) {
 
   }
 
-  private void visitLabel(LabelNode node) {
+  public void visitLabel(LabelNode node) {
 
   }
 
-  private void visitMacro(MacroNode node) {
+  public void visitMacro(MacroNode node) {
 
   }
 
-  private void visitMemoryAccess(MemoryAccessNode node) {
+  public void visitMemoryAccess(MemoryAccessNode node) {
 
   }
 
-  private void visitMnemonic(MnemonicNode node) {
+  public void visitMnemonic(MnemonicNode node) {
 
   }
 
-  private void visitOperand(OperandNode node) {
+  public void visitOperand(OperandNode node) {
 
   }
 
-  private void visitSegment(SegmentNode node) {
+  public void visitSegment(SegmentNode node) {
     Console.WriteLine($"Visiting segment {node.SegmentIdentifier}.");
     foreach(ASTNode child in node.Children) {
       child.accept(this);

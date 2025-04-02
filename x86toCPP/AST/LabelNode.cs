@@ -1,8 +1,8 @@
 namespace x86toCPP;
 
 public class LabelNode : ASTNode {
-  Token Token { get; set;}
-  string Identifier { get; set; }
+  public Token Token { get; }
+  public string Identifier { get; }
 
   public LabelNode(Token token, List<ASTNode> followingInstructions) {
     Token = token;

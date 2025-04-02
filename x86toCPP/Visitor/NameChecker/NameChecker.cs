@@ -28,7 +28,6 @@ public class NameChecker : Visitor {
     rootNode.accept(this);
   }
 
-  // visitDefault -> just visit children
   public void visitRoot(RootNode node) {
     Console.WriteLine("Visitng root.");
     foreach(ASTNode child in node.Children) {
@@ -38,12 +37,12 @@ public class NameChecker : Visitor {
 
   public void visitDataDirective(DataDirectiveNode node) {
     // check if it already exists
-    Console.WriteLine($"Visiting identifier {node.IdentifierToken.Value}");
+    Console.WriteLine($"Visiting data identifier \"{node.IdentifierToken.Value}\".");
     try {
-      SymbolEntry entry = new SymbolEntry(node.IdentifierToken.Value, node);
+      SymbolEntry entry = new SymbolEntry(node.IdentifierToken.Value, SymbolType.DATA_ID, node);
       SymbolTable.AddSymbol(entry);
     } catch {
-      throw new Exception($"Redefinition of data directive {node.IdentifierToken.Value} on line {node.IdentifierToken.Line}.");
+      throw new Exception($"Redefinition of identifier with name {node.IdentifierToken.Value} as data identifier on line {node.IdentifierToken.Line}.");
     }
   }
 
@@ -52,7 +51,14 @@ public class NameChecker : Visitor {
   }
 
   public void visitLabel(LabelNode node) {
-
+    // check if it already exists
+    Console.WriteLine($"Visiting label \"{node.Identifier}\".");
+    try {
+      SymbolEntry entry = new SymbolEntry(node.Identifier, SymbolType.LABEL, node);
+      SymbolTable.AddSymbol(entry);
+    } catch {
+      throw new Exception($"Redefinition of identifier with name {node.Identifier} as label on line {node.Token.Line}.");
+    }
   }
 
   public void visitMacro(MacroNode node) {
@@ -72,7 +78,7 @@ public class NameChecker : Visitor {
   }
 
   public void visitSegment(SegmentNode node) {
-    Console.WriteLine($"Visiting segment {node.SegmentIdentifier}.");
+    Console.WriteLine($"Visiting segment \"{node.SegmentIdentifier}\".");
     foreach(ASTNode child in node.Children) {
       child.accept(this);
     }

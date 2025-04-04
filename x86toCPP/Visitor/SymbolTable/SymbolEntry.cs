@@ -1,13 +1,20 @@
 namespace x86toCPP;
 
 public class SymbolEntry {
-  public string Name { get; private set; }
-  public SymbolType Type { get; private set; }
-  public string Value { get; set; } // for variables
-
-  public SymbolEntry(string name, SymbolType type, string value = "") {
+  public string Name { get; }
+  public SymbolType Type { get;}
+  public ASTNode? Node { get; }
+  public SymbolTable? Scope { get; }
+  public SymbolEntry(string name, SymbolType type, ASTNode node) {
     Name = name;
     Type = type;
-    Value = value;
+    Node = node;
+    Scope = null;
+  }
+  public SymbolEntry(string name, SymbolType type, SymbolTable scope) {
+    Name = name;
+    Type = type;
+    Node = null;
+    Scope = scope;
   }
 }

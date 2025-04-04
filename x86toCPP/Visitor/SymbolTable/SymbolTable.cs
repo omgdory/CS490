@@ -1,59 +1,57 @@
-namespace x86toCPP;
+using x86toCPP;
 
-/// <summary>
-/// Represents a Symbol Table that tracks identifiers, such as within a visitor pattern.
-/// </summary>
-public class SymbolTable {
-  /// <summary>
-  /// A dictionary storing symbols with their names as keys and SymbolEntry objects as values.
-  /// </summary>
-  public Dictionary<string, SymbolEntry> Symbols { get; private set; }
+public class SymbolTable
+{
+  private Dictionary<string, SymbolEntry> Symbols;
+  private SymbolTable? Parent;
+  private string Name;
 
-  /// <summary>
-  /// Initializes a new instance of the <see cref="SymbolTable"/> class.
-  /// </summary>
-  public SymbolTable() {
+  public SymbolTable(string name, SymbolTable? parent = null) {
     Symbols = new Dictionary<string, SymbolEntry>();
+    Parent = parent;
+    Name = name;
   }
 
   /// <summary>
-  /// Adds a new identifier to the Symbol Table.
-  /// Throws an exception if the entry name already exists.
+  /// Adds a new symbol entry to the current scope. Throws exception if already exists in the table.
   /// </summary>
-  public void Add(SymbolEntry entry) {
-    if (!Symbols.ContainsKey(entry.Name)) {
-      Symbols[entry.Name] = entry;
+  /// <param name="name">The name of the symbol.</param>
+  /// <param name="symbol">The symbol entry to be added.</param>
+  /// <exception cref="Exception">Thrown if the symbol already exists in the current scope.</exception>
+  public void AddSymbol(SymbolEntry symbol) {
+    if (Symbols.ContainsKey(symbol.Name)) {
+      throw new Exception($"Symbol '{symbol.Name}' already exists in the current scope.");
     }
-    else {
-      throw new Exception($"Error: Identifier '{entry.Name}' is already defined.");
-    }
+    Symbols[symbol.Name] = symbol;
   }
 
   /// <summary>
-  /// Checks whether an identifier exists in the Symbol Table.
+  /// Searches for a symbol by name, starting from the current scope and moving up to parent scopes if necessary.
   /// </summary>
+  /// <param name="name">The name of the symbol to find.</param>
+  /// <returns>The found <see cref="SymbolEntry{T}"/>, or null if not found.</returns>
+  public SymbolEntry? FindSymbol(string name) {
+    if (Symbols.TryGetValue(name, out var symbol)) {
+      return symbol;
+    }
+    return Parent?.FindSymbol(name);
+  }
+
   public bool Exists(string name) {
-    return Symbols.ContainsKey(name);
-  }
-
-  /// <summary>
-  /// Retrieves the details of an identifier from the Symbol Table.
-  /// Throws an exception if not found.
-  /// </summary>
-  public SymbolEntry Get(string name) {
-    if (Symbols.TryGetValue(name, out var entry))
-      return entry;
-    throw new Exception($"Error: Identifier '{name}' is not defined.");
-  }
-
-  /// <summary>
-  /// Prints all stored Symbols in the symbol Table to the console.
-  /// </summary>
-  public void PrintTable() {
-    Console.WriteLine("\n--- Symbol Table ---");
-    foreach (var entry in Symbols.Values) {
-      Console.WriteLine($"Name: {entry.Name}, Type: {entry.Type}, Value: {entry.Value}");
+    if (Symbols.TryGetValue(name, out var value)) {
+      return true;
     }
-    Console.WriteLine("---------------------\n");
+    return false;
+  }
+
+  public SymbolTable OpenScope(string name) {
+    return new SymbolTable(name, this);
+  }
+
+  public SymbolTable CloseScope() {
+    if (Parent == null) {
+      throw new Exception("Cannot close scope: already global.");
+    }
+    return Parent;
   }
 }

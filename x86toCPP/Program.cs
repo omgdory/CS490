@@ -17,5 +17,8 @@ public class Program {
     }
     Parser parser = new Parser(tokens);
     parser.SyntaxTreeRoot.Print();
+    RootNode rootNode = parser.SyntaxTreeRoot;
+    NameChecker nameChecker = new NameChecker();
+    nameChecker.Execute(rootNode);
   }
 }

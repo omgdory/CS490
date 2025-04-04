@@ -1,8 +1,8 @@
 namespace x86toCPP;
 
 public class MacroNode : ASTNode {
-  Token Token { get; set;}
-  string Identifier { get; set; }
+  public Token Token { get; }
+  public string Identifier { get; }
   Token ArgumentsToken { get; set;}
 
   public MacroNode(Token token, List<ASTNode> followingInstructions, Token argumentsToken) {

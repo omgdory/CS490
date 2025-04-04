@@ -19,14 +19,30 @@ public class NameChecker : Visitor {
   
   public NameChecker() {
     Type = VisitorType.NameChecker;
-    SymbolTable = new SymbolTable();
+    SymbolTable = new SymbolTable("NameChecker");
   }
 
-  // visitRoot, visitDefault -> just visit children
+  // Call default implementation to visit the root
+  public void Execute(RootNode rootNode) {
+    Console.WriteLine($"Performing visitor pattern {Type}.");
+    rootNode.accept(this);
+  }
+
+  public void visitRoot(RootNode node) {
+    foreach(ASTNode child in node.Children) {
+      child.accept(this);
+    }
+  }
 
   public void visitDataDirective(DataDirectiveNode node) {
     // check if it already exists
-    Console.WriteLine($"Visiting identifier {node.IdentifierToken.Value}");
+    Console.WriteLine($"Namechecking data identifier \"{node.IdentifierToken.Value}\".");
+    try {
+      SymbolEntry entry = new SymbolEntry(node.IdentifierToken.Value, SymbolType.DATA_ID, node);
+      SymbolTable.AddSymbol(entry);
+    } catch {
+      throw new Exception($"Redefinition of identifier with name {node.IdentifierToken.Value} as data identifier on line {node.IdentifierToken.Line}.");
+    }
   }
 
   public void visitGlobalDeclarator(GlobalDeclaratorNode node) {
@@ -34,26 +50,59 @@ public class NameChecker : Visitor {
   }
 
   public void visitLabel(LabelNode node) {
-
+    // check if it already exists
+    Console.WriteLine($"Namechecking label \"{node.Identifier}\".");
+    try {
+      SymbolEntry entry = new SymbolEntry(node.Identifier, SymbolType.LABEL, node);
+      SymbolTable.AddSymbol(entry);
+    } catch {
+      throw new Exception($"Redefinition of identifier with name {node.Identifier} as label on line {node.Token.Line}.");
+    }
+    // now, visit the innards
+    foreach(ASTNode child in node.Children) {
+      child.accept(this);
+    }
   }
 
   public void visitMacro(MacroNode node) {
-
+    // check if it already exists
+    Console.WriteLine($"Namechecking macro \"{node.Identifier}\".");
+    try {
+      SymbolEntry entry = new SymbolEntry(node.Identifier, SymbolType.MACRO, node);
+      SymbolTable.AddSymbol(entry);
+    } catch {
+      throw new Exception($"Redefinition of identifier with name {node.Identifier} as macro on line {node.Token.Line}.");
+    }
+    // no need to visit macro innards... -> consider later?
   }
 
   public void visitMemoryAccess(MemoryAccessNode node) {
-
+    foreach(ASTNode child in node.Children) {
+      child.accept(this);
+    }
   }
 
   public void visitMnemonic(MnemonicNode node) {
-
+    foreach(ASTNode child in node.Children) {
+      child.accept(this);
+    }
   }
 
   public void visitOperand(OperandNode node) {
-
+    // only namecheck for identifiers -> skip if it isn't one
+    if(node.OperandType != TOKEN_TYPE.IDENTIFIER) {
+      return;
+    }
+    Console.WriteLine($"Namechecking identifier \"{node.Value}\".");
+    if(!SymbolTable.Exists(node.Value)) { 
+      throw new Exception($"Use of unfound identifier \"{node.Value}\".");
+    }
   }
 
   public void visitSegment(SegmentNode node) {
-
+    Console.WriteLine($"Namechecking segment \"{node.SegmentIdentifier}\".");
+    foreach(ASTNode child in node.Children) {
+      child.accept(this);
+    }
   }
 }

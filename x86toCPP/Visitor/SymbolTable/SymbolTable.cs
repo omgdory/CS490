@@ -37,6 +37,13 @@ public class SymbolTable
     return Parent?.FindSymbol(name);
   }
 
+  public bool Exists(string name) {
+    if (Symbols.TryGetValue(name, out var value)) {
+      return true;
+    }
+    return false;
+  }
+
   public SymbolTable OpenScope(string name) {
     return new SymbolTable(name, this);
   }

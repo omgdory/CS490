@@ -10,6 +10,6 @@ public class LocalDeclNode : CPPASTNode {
   }
 
   public override string ToString() {
-    return Identifier + " = " + Value + ";";
+    return "const int " + Identifier + " = " + Value + ";";
   }
 }

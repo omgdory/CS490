@@ -10,7 +10,7 @@ public class Program {
       Console.WriteLine("Usage: x86toCPP <file.asm>");
       return;
     }
-    // lex the file
+    // ----- lexer -----
     List<Token> tokens = Lexer.LexTokens(args[0]);
     int i=0;
     // output lexer
@@ -18,18 +18,18 @@ public class Program {
       Console.WriteLine(i + ": " + t.ToString());
       i++;
     }
-    // parse the tokens
+    // ----- parser -----
     Parser parser = new Parser(tokens);
     // output parser
     parser.SyntaxTreeRoot.Print();
-    // namechecker
+    // ----- namechecker -----
     RootNode rootNode = parser.SyntaxTreeRoot;
     NameChecker nameChecker = new NameChecker();
     nameChecker.Execute(rootNode);
-    // basic declaration translation
-    DeclarationTranslator declarationTranslator = new DeclarationTranslator();
-    declarationTranslator.Execute(rootNode);
-    // output basic declaration translation
-    declarationTranslator.PrintTranslation();
+    // // basic declaration translation
+    // DeclarationTranslator declarationTranslator = new DeclarationTranslator();
+    // declarationTranslator.Execute(rootNode);
+    // // output basic declaration translation
+    // declarationTranslator.PrintTranslation();
   }
 }

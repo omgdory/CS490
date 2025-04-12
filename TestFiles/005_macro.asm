@@ -40,6 +40,7 @@ section .data
 SYS_exit      equ 60
 EXIT_SUCCESS  equ 0
 NULL          equ 0
+test          equ 0x31
 
 section .text
 global _start

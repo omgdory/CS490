@@ -1,13 +1,13 @@
 using x86toCPP;
 
-public class SymbolTable
+public class SymbolTable<T>
 {
-  private Dictionary<string, SymbolEntry> Symbols;
-  private SymbolTable? Parent;
+  private Dictionary<string, SymbolEntry<T>> Symbols;
+  private SymbolTable<T>? Parent;
   private string Name;
 
-  public SymbolTable(string name, SymbolTable? parent = null) {
-    Symbols = new Dictionary<string, SymbolEntry>();
+  public SymbolTable(string name, SymbolTable<T>? parent = null) {
+    Symbols = new Dictionary<string, SymbolEntry<T>>();
     Parent = parent;
     Name = name;
   }
@@ -18,7 +18,7 @@ public class SymbolTable
   /// <param name="name">The name of the symbol.</param>
   /// <param name="symbol">The symbol entry to be added.</param>
   /// <exception cref="Exception">Thrown if the symbol already exists in the current scope.</exception>
-  public void AddSymbol(SymbolEntry symbol) {
+  public void AddSymbol(SymbolEntry<T> symbol) {
     if (Symbols.ContainsKey(symbol.Name)) {
       throw new Exception($"Symbol '{symbol.Name}' already exists in the current scope.");
     }
@@ -30,7 +30,7 @@ public class SymbolTable
   /// </summary>
   /// <param name="name">The name of the symbol to find.</param>
   /// <returns>The found <see cref="SymbolEntry{T}"/>, or null if not found.</returns>
-  public SymbolEntry? FindSymbol(string name) {
+  public SymbolEntry<T>? FindSymbol(string name) {
     if (Symbols.TryGetValue(name, out var symbol)) {
       return symbol;
     }
@@ -44,11 +44,11 @@ public class SymbolTable
     return false;
   }
 
-  public SymbolTable OpenScope(string name) {
-    return new SymbolTable(name, this);
+  public SymbolTable<T> OpenScope(string name) {
+    return new SymbolTable<T>(name, this);
   }
 
-  public SymbolTable CloseScope() {
+  public SymbolTable<T> CloseScope() {
     if (Parent == null) {
       throw new Exception("Cannot close scope: already global.");
     }

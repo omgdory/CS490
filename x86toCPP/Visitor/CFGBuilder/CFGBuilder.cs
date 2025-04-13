@@ -19,13 +19,20 @@ public class CFGBuilder : Visitor {
   //     no: add to current node and continue
 
   public VisitorType Type { get; private set; }
-  public SymbolTable SymbolTable { get; private set; }
+  public SymbolTable<CFGNode> NodesTable { get; private set; }
   public List<CFGNode> Graphs { get; private set;}
+  
+  private int id = 0;
+  private CFGNode current;
   
   public CFGBuilder() {
     Type = VisitorType.CFGBuilder;
-    SymbolTable = new SymbolTable("ControlFlowGraphBuilder");
+    NodesTable = new SymbolTable<CFGNode>("ControlFlowGraphBuilder");
     Graphs = new List<CFGNode>();
+    current = new CFGNode(id++);
+    // add first node to symbol table
+    SymbolEntry<CFGNode> entry = new SymbolEntry<CFGNode>(current.Id.ToString(), SymbolType.DEFAULT, current);
+    NodesTable.AddSymbol(entry);
   }
 
   // Call default implementation to visit the root
@@ -69,6 +76,9 @@ public class CFGBuilder : Visitor {
   }
 
   public void visitSegment(SegmentNode node) {
-
+    // if data segment, just make it its own node
+    if(node.SegmentIdentifier == SEGMENT_IDENTIFIER_TOKEN.DATA_SEGMENT_IDENTIFIER) {
+      
+    }
   }
 }

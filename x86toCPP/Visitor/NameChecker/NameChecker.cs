@@ -15,11 +15,11 @@ public class NameChecker : Visitor {
   public static string MACRO_PREFIX = "__$$";
 
   public VisitorType Type { get; private set; }
-  public SymbolTable SymbolTable { get; private set; }
+  public SymbolTable<ASTNode> SymbolTable { get; private set; }
   
   public NameChecker() {
     Type = VisitorType.NameChecker;
-    SymbolTable = new SymbolTable("NameChecker");
+    SymbolTable = new SymbolTable<ASTNode>("NameChecker");
   }
 
   // Call default implementation to visit the root
@@ -38,7 +38,7 @@ public class NameChecker : Visitor {
     // check if it already exists
     Console.WriteLine($"Namechecking data identifier \"{node.IdentifierToken.Value}\".");
     try {
-      SymbolEntry entry = new SymbolEntry(node.IdentifierToken.Value, SymbolType.DATA_ID, node);
+      SymbolEntry<ASTNode> entry = new SymbolEntry<ASTNode>(node.IdentifierToken.Value, SymbolType.DATA_ID, node);
       SymbolTable.AddSymbol(entry);
     } catch {
       throw new Exception($"Redefinition of identifier with name {node.IdentifierToken.Value} as data identifier on line {node.IdentifierToken.Line}.");
@@ -53,7 +53,7 @@ public class NameChecker : Visitor {
     // check if it already exists
     Console.WriteLine($"Namechecking label \"{node.Identifier}\".");
     try {
-      SymbolEntry entry = new SymbolEntry(node.Identifier, SymbolType.LABEL, node);
+      SymbolEntry<ASTNode> entry = new SymbolEntry<ASTNode>(node.Identifier, SymbolType.LABEL, node);
       SymbolTable.AddSymbol(entry);
     } catch {
       throw new Exception($"Redefinition of identifier with name {node.Identifier} as label on line {node.Token.Line}.");
@@ -68,7 +68,7 @@ public class NameChecker : Visitor {
     // check if it already exists
     Console.WriteLine($"Namechecking macro \"{node.Identifier}\".");
     try {
-      SymbolEntry entry = new SymbolEntry(node.Identifier, SymbolType.MACRO, node);
+      SymbolEntry<ASTNode> entry = new SymbolEntry<ASTNode>(node.Identifier, SymbolType.MACRO, node);
       SymbolTable.AddSymbol(entry);
     } catch {
       throw new Exception($"Redefinition of identifier with name {node.Identifier} as macro on line {node.Token.Line}.");

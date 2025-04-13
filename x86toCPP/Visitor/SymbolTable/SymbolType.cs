@@ -4,4 +4,5 @@ public enum SymbolType {
   MACRO,
   DATA_ID,
   LABEL,
+  DEFAULT,
 }

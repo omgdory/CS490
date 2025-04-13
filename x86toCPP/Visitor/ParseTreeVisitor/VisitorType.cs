@@ -4,4 +4,5 @@ public enum VisitorType {
   NameChecker,
   DeclarationTranslator,
   SizeChecker,
+  CFGBuilder,
 }

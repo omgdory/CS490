@@ -31,5 +31,9 @@ public class Program {
     // declarationTranslator.Execute(rootNode);
     // // output basic declaration translation
     // declarationTranslator.PrintTranslation();
+    // cfg builder
+    CFGBuilder cfgBuilder = new CFGBuilder();
+    cfgBuilder.Execute(rootNode);
+    cfgBuilder.Print();
   }
 }

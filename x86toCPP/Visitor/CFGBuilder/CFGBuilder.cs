@@ -5,22 +5,11 @@ namespace x86toCPP;
 /// Builds a Control Flow Graph given an appropriately validated parse tree.
 /// </summary>
 public class CFGBuilder : Visitor {
-  // SymbolTable (but for CFG nodes)
-
-  // Create new CFG for each macro
-
-  // 1. iterate through label children (ASTNodes)
-  // 2. jump instruction?
-  //     yes: already in SymbolTable?
-  //   yes: add pointer to that entry
-  //   no: create new CFG node and add to symbol table
-  //       - associate with label of the jump instruction
-  //       - add pointer to newly-created CFG node
-  //     no: add to current node and continue
 
   public VisitorType Type { get; private set; }
 
-  private Dictionary<int, CFGNode> nodeMap;
+  private Dictionary<string, int> labelMap; // label to ID
+  private Dictionary<int, CFGNode> nodeMap; // ID to CFGNode
   private int id;
   private CFGNode? current;
   
@@ -28,9 +17,16 @@ public class CFGBuilder : Visitor {
     // public attributes
     Type = VisitorType.CFGBuilder;
     // private attributes
+    labelMap = new Dictionary<string, int>();
     nodeMap = new Dictionary<int, CFGNode>();
     id = 0;
     current = null;
+  }
+
+  public void Print() {
+    foreach(KeyValuePair<int, CFGNode> entry in nodeMap) {
+      entry.Value.Print();
+    }
   }
 
   /// <summary>
@@ -90,6 +86,8 @@ public class CFGBuilder : Visitor {
       CFGNode target = CreateTargetNode();
       current = target;
     }
+    // add to labelMap
+    labelMap[node.Identifier] = id;
     current?.ParseNodes.Add(node);
     foreach(ASTNode child in node.Children) {
       child.accept(this);
@@ -97,7 +95,9 @@ public class CFGBuilder : Visitor {
   }
 
   public void visitMacro(MacroNode node) {
-    
+    foreach(ASTNode child in node.Children) {
+      child.accept(this);
+    }
   }
 
   public void visitMemoryAccess(MemoryAccessNode node) {
@@ -118,8 +118,19 @@ public class CFGBuilder : Visitor {
       case MNEMONIC_TOKEN.JBE:
       case MNEMONIC_TOKEN.JA:
       case MNEMONIC_TOKEN.JAE:
+        // get the label
+        string targetLabel = ((OperandNode)node.Children[0]).Value;
+        // does the target already exist?
+        bool nodeInstantiated = labelMap.ContainsKey(targetLabel);
+        // instantiate the current if needed
         if(current == null) InstantiateCurrent();
-        CreateTargetNode();
+        if(nodeInstantiated) {
+          CFGNode targetNode = nodeMap[labelMap[targetLabel]-1]; 
+          current?.Edges.Add(targetNode);
+        } else {
+          if(current == null) InstantiateCurrent();
+          CreateTargetNode();
+        }
         current = null;
         break;
       // if not jump, just add to CFG and continue
@@ -141,9 +152,9 @@ public class CFGBuilder : Visitor {
       // if data segment, just make it its own node
       case SEGMENT_IDENTIFIER_TOKEN.DATA_SEGMENT_IDENTIFIER:
         // one node with all ASTNodes of the data segment
-        current = new CFGNode(id++);
+        InstantiateCurrent();
         foreach(ASTNode child in node.Children) {
-          current.ParseNodes.Add(child);
+          current?.ParseNodes.Add(child);
         }
         break;
       // if text segment, just let the children handle it

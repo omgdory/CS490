@@ -19,20 +19,45 @@ public class CFGBuilder : Visitor {
   //     no: add to current node and continue
 
   public VisitorType Type { get; private set; }
-  public SymbolTable<CFGNode> NodesTable { get; private set; }
-  public List<CFGNode> Graphs { get; private set;}
-  
-  private int id = 0;
-  private CFGNode current;
+
+  private Dictionary<int, CFGNode> nodeMap;
+  private int id;
+  private CFGNode? current;
   
   public CFGBuilder() {
+    // public attributes
     Type = VisitorType.CFGBuilder;
-    NodesTable = new SymbolTable<CFGNode>("ControlFlowGraphBuilder");
-    Graphs = new List<CFGNode>();
+    // private attributes
+    nodeMap = new Dictionary<int, CFGNode>();
+    id = 0;
+    current = null;
+  }
+
+  /// <summary>
+  /// Instantiates a new <see cref="CFGNode"/> as the current node.
+  /// </summary>
+  /// <remarks>
+  /// Exception thrown if <c>current</c> is already assigned,
+  /// indicating improper usage or unexpected flow in CFG construction.
+  /// </remarks>
+  private void InstantiateCurrent() {
+    if(current != null) throw new Exception("Current instantiation while still extant.");
     current = new CFGNode(id++);
-    // add first node to symbol table
-    SymbolEntry<CFGNode> entry = new SymbolEntry<CFGNode>(current.Id.ToString(), SymbolType.DEFAULT, current);
-    NodesTable.AddSymbol(entry);
+    nodeMap[id-1] = current;
+  }
+
+  /// <summary>
+  /// Instantiates a new <see cref="CFGNode"/> and creates an edge from the current node.
+  /// </summary>
+  /// <remarks>
+  /// Exception thrown if <c>current</c> is <c>null</c>
+  /// </remarks>
+  private CFGNode CreateTargetNode() {
+    if(current == null) throw new Exception("New edge creation while current null.");
+    CFGNode target = new CFGNode(id++);
+    nodeMap[id-1] = target;
+    current.Edges.Add(target);
+    return target;
   }
 
   // Call default implementation to visit the root
@@ -56,7 +81,19 @@ public class CFGBuilder : Visitor {
   }
 
   public void visitLabel(LabelNode node) {
-    
+    // null current CFG node -> make a new one!
+    if(current == null) {
+      InstantiateCurrent();
+    }
+    // current CFG node extant -> create a new node and make it point to new one!
+    else {
+      CFGNode target = CreateTargetNode();
+      current = target;
+    }
+    current?.ParseNodes.Add(node);
+    foreach(ASTNode child in node.Children) {
+      child.accept(this);
+    }
   }
 
   public void visitMacro(MacroNode node) {
@@ -68,7 +105,30 @@ public class CFGBuilder : Visitor {
   }
 
   public void visitMnemonic(MnemonicNode node) {
-
+    switch(node.Opcode) {
+      // handle the jumps
+      case MNEMONIC_TOKEN.JMP:
+      case MNEMONIC_TOKEN.JE:
+      case MNEMONIC_TOKEN.JNE:
+      case MNEMONIC_TOKEN.JL:
+      case MNEMONIC_TOKEN.JLE:
+      case MNEMONIC_TOKEN.JG:
+      case MNEMONIC_TOKEN.JGE:
+      case MNEMONIC_TOKEN.JB:
+      case MNEMONIC_TOKEN.JBE:
+      case MNEMONIC_TOKEN.JA:
+      case MNEMONIC_TOKEN.JAE:
+        if(current == null) InstantiateCurrent();
+        CreateTargetNode();
+        current = null;
+        break;
+      // if not jump, just add to CFG and continue
+      default:
+        // if current has been nullified, then make a new one
+        if(current == null) InstantiateCurrent();
+        current?.ParseNodes.Add(node);
+        break;
+    }
   }
 
   public void visitOperand(OperandNode node) {
@@ -76,9 +136,25 @@ public class CFGBuilder : Visitor {
   }
 
   public void visitSegment(SegmentNode node) {
-    // if data segment, just make it its own node
-    if(node.SegmentIdentifier == SEGMENT_IDENTIFIER_TOKEN.DATA_SEGMENT_IDENTIFIER) {
-      
+    // handle depending on what type of segment (section) it is
+    switch(node.SegmentIdentifier) {
+      // if data segment, just make it its own node
+      case SEGMENT_IDENTIFIER_TOKEN.DATA_SEGMENT_IDENTIFIER:
+        // one node with all ASTNodes of the data segment
+        current = new CFGNode(id++);
+        foreach(ASTNode child in node.Children) {
+          current.ParseNodes.Add(child);
+        }
+        break;
+      // if text segment, just let the children handle it
+      case SEGMENT_IDENTIFIER_TOKEN.TEXT_SEGMENT_IDENTIFIER:
+        foreach(ASTNode child in node.Children) {
+          child.accept(this);
+        }
+        break;
+      // unsupported section
+      default:
+        throw new Exception("FATAL: Unhandled section in CFGBuilder.");
     }
   }
 }

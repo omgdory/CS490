@@ -1,3 +1,5 @@
+using System.Reflection.Emit;
+
 namespace x86toCPP;
 
 public class CFGNode {
@@ -5,12 +7,12 @@ public class CFGNode {
 // - list of pointers to other nodes (self-point allowed)
 // - list of ASTNodes
   public int Id { get; }
-  public List<CFGNode> Paths { get; }
+  public List<CFGNode> Edges { get; }
   public List<ASTNode> ParseNodes { get; }
 
   public CFGNode(int id) {
     Id = id;
-    Paths = new List<CFGNode>();
+    Edges = new List<CFGNode>();
     ParseNodes = new List<ASTNode>();
   }
 
@@ -18,7 +20,7 @@ public class CFGNode {
     Console.Write($"Node {Id} to ");
     bool first = true;
     // where the node goes to
-    foreach(CFGNode n in Paths) {
+    foreach(CFGNode n in Edges) {
       if(!first) {
         Console.Write(", ");
       }

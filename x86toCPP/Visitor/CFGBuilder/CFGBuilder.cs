@@ -52,8 +52,53 @@ public class CFGBuilder : Visitor {
     if(current == null) throw new Exception("New edge creation while current null.");
     CFGNode target = new CFGNode(id++);
     nodeMap[id-1] = target;
-    current.Edges.Add(target);
+    AddEdge(current, target);
     return target;
+  }
+  private CFGNode CreateTargetNode(string label) {
+    if(current == null) throw new Exception("New edge creation while current null.");
+    CFGNode target = new CFGNode(id++);
+    nodeMap[id-1] = target;
+    // label stuff
+    target.Label = label;
+    labelMap[label] = id-1;
+    AddEdge(current, target);
+    return target;
+  }
+
+  /// <summary>
+  /// Adds an <c>ASTNode</c> to <c>current</c>'s associated parse tree nodes.
+  /// </summary>
+  /// <remarks>
+  /// Exception thrown if <c>current</c> is <c>null</c>.
+  /// </remarks>
+  private void AddNode(ASTNode node) {
+    if(current == null) throw new Exception("Attempted handling of current CFG variable while null.");
+    current?.ParseNodes.Add(node);
+  }
+
+  /// <summary>
+  /// Adds a <c>targetNode</c> as a <c>baseNode</c> edge. Does not add if the node has already been added.
+  /// </summary>
+  /// <remarks>
+  /// Exception thrown if either argument is <c>null</c>.
+  /// </remarks>
+  private void AddEdge(CFGNode baseNode, CFGNode targetNode) {
+    if(baseNode == null || targetNode == null) throw new Exception("Attempted handling of current CFG variable while null.");
+    // ListA.Any(a => a.Id == stringID)
+    if(baseNode.Edges.Any(a => a.Id == targetNode.Id)) return;
+    baseNode?.Edges.Add(targetNode);
+  }
+
+  /// <summary>
+  /// Adds the <c>current</c> node as an edge to the most recently parsed CFGNode.
+  /// </summary>
+  /// <remarks>
+  /// Exception thrown if <c>current</c> is <c>null</c>.
+  /// </remarks>
+  private void ConnectPrevious() {
+    if(current == null) throw new Exception("Attempted handling of current CFG variable while null.");
+    nodeMap[id-1].Edges.Add(current);
   }
 
   // Call default implementation to visit the root
@@ -77,18 +122,14 @@ public class CFGBuilder : Visitor {
   }
 
   public void visitLabel(LabelNode node) {
-    // null current CFG node -> make a new one!
-    if(current == null) {
-      InstantiateCurrent();
-    }
-    // current CFG node extant -> create a new node and make it point to new one!
-    else {
-      CFGNode target = CreateTargetNode();
-      current = target;
-    }
+    if(current == null) InstantiateCurrent();
+    // new node regardless
+    else CreateTargetNode(node.Identifier);
+    // label will be associated with current node
+    current?.SetLabel(node.Identifier);
     // add to labelMap
-    labelMap[node.Identifier] = id;
-    current?.ParseNodes.Add(node);
+    labelMap[node.Identifier] = id-1;
+    AddNode(node);
     foreach(ASTNode child in node.Children) {
       child.accept(this);
     }
@@ -124,12 +165,13 @@ public class CFGBuilder : Visitor {
         bool nodeInstantiated = labelMap.ContainsKey(targetLabel);
         // instantiate the current if needed
         if(current == null) InstantiateCurrent();
+        AddNode(node);
         if(nodeInstantiated) {
-          CFGNode targetNode = nodeMap[labelMap[targetLabel]-1]; 
-          current?.Edges.Add(targetNode);
+          CFGNode targetNode = nodeMap[labelMap[targetLabel]]; 
+          if(current != null)
+            AddEdge(current, targetNode);
         } else {
-          if(current == null) InstantiateCurrent();
-          CreateTargetNode();
+          CreateTargetNode(targetLabel);
         }
         current = null;
         break;
@@ -137,7 +179,10 @@ public class CFGBuilder : Visitor {
       default:
         // if current has been nullified, then make a new one
         if(current == null) InstantiateCurrent();
-        current?.ParseNodes.Add(node);
+        // previously parsed CFGNode MUST point to this one...
+        ConnectPrevious();
+        // finally, add current ASTNode to "current"
+        AddNode(node);
         break;
     }
   }
@@ -154,7 +199,7 @@ public class CFGBuilder : Visitor {
         // one node with all ASTNodes of the data segment
         InstantiateCurrent();
         foreach(ASTNode child in node.Children) {
-          current?.ParseNodes.Add(child);
+          AddNode(child);
         }
         break;
       // if text segment, just let the children handle it

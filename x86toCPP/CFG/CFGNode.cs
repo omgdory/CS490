@@ -9,11 +9,18 @@ public class CFGNode {
   public int Id { get; }
   public List<CFGNode> Edges { get; }
   public List<ASTNode> ParseNodes { get; }
+  public string? Label { get; set; }
 
   public CFGNode(int id) {
     Id = id;
     Edges = new List<CFGNode>();
     ParseNodes = new List<ASTNode>();
+    Label = null;
+  }
+
+  // so the compiler stops whining
+  public void SetLabel(string label) {
+    Label = label;
   }
 
   public void Print() {

@@ -11,7 +11,7 @@ public class CFGBuilder : Visitor {
   private Dictionary<string, int> labelMap; // label to ID
   private Dictionary<int, CFGNode> nodeMap; // ID to CFGNode
   private int id;
-  private CFGNode? current;
+  private CFGNode current;
   
   public CFGBuilder() {
     // public attributes
@@ -19,8 +19,10 @@ public class CFGBuilder : Visitor {
     // private attributes
     labelMap = new Dictionary<string, int>();
     nodeMap = new Dictionary<int, CFGNode>();
-    id = 0;
-    current = null;
+    id = 1;
+    current = new CFGNode(id);
+    nodeMap[id] = current;
+    id++;
   }
 
   public void Print() {
@@ -36,33 +38,32 @@ public class CFGBuilder : Visitor {
   /// Exception thrown if <c>current</c> is already assigned,
   /// indicating improper usage or unexpected flow in CFG construction.
   /// </remarks>
-  private void InstantiateCurrent() {
+  private CFGNode InstantiateCurrent() {
     if(current != null) throw new Exception("Current instantiation while still extant.");
     current = new CFGNode(id++);
     nodeMap[id-1] = current;
+    return current;
   }
 
   /// <summary>
   /// Instantiates a new <see cref="CFGNode"/> and creates an edge from the current node.
+  /// Sets the newly created node to <c>current</c> if <c>newCurrent</c> is <c>true</c>.
+  /// Adds the newly created node to <c>current.Edges</c> if <c>newEdge</c> is <c>true</c>.
   /// </summary>
   /// <remarks>
   /// Exception thrown if <c>current</c> is <c>null</c>
   /// </remarks>
-  private CFGNode CreateTargetNode() {
+  private CFGNode NewNode(string? label = null, bool newCurrent = true, bool addEdge = true) {
     if(current == null) throw new Exception("New edge creation while current null.");
-    CFGNode target = new CFGNode(id++);
-    nodeMap[id-1] = target;
-    AddEdge(current, target);
-    return target;
-  }
-  private CFGNode CreateTargetNode(string label) {
-    if(current == null) throw new Exception("New edge creation while current null.");
-    CFGNode target = new CFGNode(id++);
-    nodeMap[id-1] = target;
-    // label stuff
-    target.Label = label;
-    labelMap[label] = id-1;
-    AddEdge(current, target);
+    CFGNode target = new CFGNode(id);
+    nodeMap[id] = target;
+    id++;
+    if(label != null) {
+      target.Label = label;
+      labelMap[label] = id;
+    }
+    if(addEdge) AddEdge(current, target);
+    if(newCurrent) current = target;
     return target;
   }
 
@@ -74,7 +75,7 @@ public class CFGBuilder : Visitor {
   /// </remarks>
   private void AddNode(ASTNode node) {
     if(current == null) throw new Exception("Attempted handling of current CFG variable while null.");
-    current?.ParseNodes.Add(node);
+    current.ParseNodes.Add(node);
   }
 
   /// <summary>
@@ -85,9 +86,8 @@ public class CFGBuilder : Visitor {
   /// </remarks>
   private void AddEdge(CFGNode baseNode, CFGNode targetNode) {
     if(baseNode == null || targetNode == null) throw new Exception("Attempted handling of current CFG variable while null.");
-    // ListA.Any(a => a.Id == stringID)
     if(baseNode.Edges.Any(a => a.Id == targetNode.Id)) return;
-    baseNode?.Edges.Add(targetNode);
+    baseNode.Edges.Add(targetNode);
   }
 
   /// <summary>
@@ -122,14 +122,22 @@ public class CFGBuilder : Visitor {
   }
 
   public void visitLabel(LabelNode node) {
-    if(current == null) InstantiateCurrent();
-    // new node regardless
-    else CreateTargetNode(node.Identifier);
-    // label will be associated with current node
-    current?.SetLabel(node.Identifier);
-    // add to labelMap
-    labelMap[node.Identifier] = id-1;
-    AddNode(node);
+    // has label already been found earlier?
+    bool nodeInstantiated = labelMap.ContainsKey(node.Identifier);
+    // if yes, just set current to this one and connect previous
+    if(nodeInstantiated) {
+      CFGNode tmp = current;
+      current = nodeMap[labelMap[node.Identifier]];
+      AddEdge(current, tmp);
+    } 
+    // otherwise, we'll make a new one if needed
+    else {
+      if(current == null || current.ParseNodes.Count != 0)
+        NewNode(node.Identifier);
+      else
+        current.SetLabel(node.Identifier);
+    }
+    // now, just visit the children
     foreach(ASTNode child in node.Children) {
       child.accept(this);
     }
@@ -163,25 +171,20 @@ public class CFGBuilder : Visitor {
         string targetLabel = ((OperandNode)node.Children[0]).Value;
         // does the target already exist?
         bool nodeInstantiated = labelMap.ContainsKey(targetLabel);
-        // instantiate the current if needed
-        if(current == null) InstantiateCurrent();
         AddNode(node);
         if(nodeInstantiated) {
           CFGNode targetNode = nodeMap[labelMap[targetLabel]]; 
-          if(current != null)
-            AddEdge(current, targetNode);
+          AddEdge(current, targetNode);
         } else {
-          CreateTargetNode(targetLabel);
+          // node not instantiated -> create but DON'T set to current
+          NewNode(targetLabel, newCurrent: false);
         }
-        current = null;
+        // re-instantiate current
+        NewNode();
         break;
       // if not jump, just add to CFG and continue
       default:
-        // if current has been nullified, then make a new one
-        if(current == null) InstantiateCurrent();
-        // previously parsed CFGNode MUST point to this one...
-        ConnectPrevious();
-        // finally, add current ASTNode to "current"
+        // add current ASTNode to "current"
         AddNode(node);
         break;
     }
@@ -197,7 +200,7 @@ public class CFGBuilder : Visitor {
       // if data segment, just make it its own node
       case SEGMENT_IDENTIFIER_TOKEN.DATA_SEGMENT_IDENTIFIER:
         // one node with all ASTNodes of the data segment
-        InstantiateCurrent();
+        // InstantiateCurrent();
         foreach(ASTNode child in node.Children) {
           AddNode(child);
         }

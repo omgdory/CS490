@@ -1,0 +1,16 @@
+CFG node
+- list of pointers to other nodes (self-point allowed)
+- list of ASTNodes
+
+SymbolTable (but for CFG nodes)
+
+Create new CFG for each macro
+
+1. iterate through label children (ASTNodes)
+2. jump instruction?
+    yes: already in SymbolTable?
+	yes: add pointer to that entry
+	no: create new CFG node and add to symbol table
+	    - associate with label of the jump instruction
+	    - add pointer to newly-created CFG node
+    no: add to current node and continue

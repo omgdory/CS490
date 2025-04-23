@@ -57,11 +57,11 @@ public class CFGBuilder : Visitor {
     if(current == null) throw new Exception("New edge creation while current null.");
     CFGNode target = new CFGNode(id);
     nodeMap[id] = target;
-    id++;
     if(label != null) {
       target.Label = label;
       labelMap[label] = id;
     }
+    id++;
     if(addEdge) AddEdge(current, target);
     if(newCurrent) current = target;
     return target;
@@ -128,7 +128,7 @@ public class CFGBuilder : Visitor {
     if(nodeInstantiated) {
       CFGNode tmp = current;
       current = nodeMap[labelMap[node.Identifier]];
-      AddEdge(current, tmp);
+      AddEdge(tmp, current);
     } 
     // otherwise, we'll make a new one if needed
     else {
@@ -167,6 +167,8 @@ public class CFGBuilder : Visitor {
       case MNEMONIC_TOKEN.JBE:
       case MNEMONIC_TOKEN.JA:
       case MNEMONIC_TOKEN.JAE:
+        // if unconditional, then make sure the next node isn't connected
+        bool unconditionalJump = node.Opcode == MNEMONIC_TOKEN.JMP;
         // get the label
         string targetLabel = ((OperandNode)node.Children[0]).Value;
         // does the target already exist?
@@ -180,7 +182,7 @@ public class CFGBuilder : Visitor {
           NewNode(targetLabel, newCurrent: false);
         }
         // re-instantiate current
-        NewNode();
+        NewNode(addEdge: !unconditionalJump);
         break;
       // if not jump, just add to CFG and continue
       default:

@@ -36,17 +36,17 @@
 	jge %%addWhitespacesInt2Sept
 %endmacro
 
-section .data
-SYS_exit      equ 60
-EXIT_SUCCESS  equ 0
-NULL          equ 0
-test          equ 0x31
+; section .data
+; SYS_exit      equ 60
+; EXIT_SUCCESS  equ 0
+; NULL          equ 0
+; test          equ 0x31
 
-section .text
-global _start
-_start:
-  mov rax, 2
-  testMacro dword[array+rsi*4], tempString
-  mov rax, SYS_exit
-  mov rdi, EXIT_SUCCESS
-  syscall
+; section .text
+; global _start
+; _start:
+;   mov rax, 2
+;   testMacro dword[array+rsi*4], tempString
+;   mov rax, SYS_exit
+;   mov rdi, EXIT_SUCCESS
+;   syscall

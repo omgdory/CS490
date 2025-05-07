@@ -12,6 +12,9 @@ public class CFGBuilder : Visitor {
   private Dictionary<int, CFGNode> nodeMap; // ID to CFGNode
   private int id;
   private CFGNode current;
+
+	// for CFG analyzer reference
+	public Dictionary<int, CFGNode> NodeMap { get; private set; }
   
   public CFGBuilder() {
     // public attributes
@@ -19,6 +22,7 @@ public class CFGBuilder : Visitor {
     // private attributes
     labelMap = new Dictionary<string, int>();
     nodeMap = new Dictionary<int, CFGNode>();
+		NodeMap = nodeMap;
     id = 1;
     current = new CFGNode(id);
     nodeMap[id] = current;

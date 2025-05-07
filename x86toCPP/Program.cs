@@ -1,5 +1,6 @@
 ﻿using x86toCPP;
 using System.IO;
+using System.ComponentModel;
 
 namespace x86toCPP;
 
@@ -35,5 +36,9 @@ public class Program {
     CFGBuilder cfgBuilder = new CFGBuilder();
     cfgBuilder.Execute(rootNode);
     cfgBuilder.Print();
+
+		// cfg analyzer
+		CFGAnalyzer cfgAnalyzer = new CFGAnalyzer(cfgBuilder.NodeMap.Values.ToList());
+		cfgAnalyzer.Execute();
   }
 }

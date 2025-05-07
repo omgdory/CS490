@@ -39,6 +39,6 @@ public class Program {
 
 		// cfg analyzer
 		CFGAnalyzer cfgAnalyzer = new CFGAnalyzer(cfgBuilder.NodeMap.Values.ToList());
-		cfgAnalyzer.Execute();
+		// cfgAnalyzer.Execute();
   }
 }
